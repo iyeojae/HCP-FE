@@ -29,12 +29,6 @@ export default function SplashPage() {
           <span className="logo-text">logo</span>
         </div>
       </div>
-
-      <div className="splash-note">
-        <p>완성도로 높이기위해서</p>
-        <p>애니메이션을 추가하면 좋을 것 같고</p>
-        <p>이것은 추후에 어느정도 완성되면 생각</p>
-      </div>
     </div>
   );
 }
