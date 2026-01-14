@@ -156,3 +156,11 @@
   font-size: 12px;
   cursor: pointer;
 }
+
+@supports (-webkit-touch-callout: none) {
+  .login-input,
+  .sv-input,
+  .su2-input {
+    font-size: 16px; /* iOS에서만 확대 방지 */
+  }
+}

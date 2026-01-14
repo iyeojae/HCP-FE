@@ -1,0 +1,83 @@
+.sv-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.sv-content {
+  flex: 1;
+  padding: 18px 20px 0;
+}
+
+.sv-title p {
+  margin: 22px 0 26px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #111;
+}
+
+.sv-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sv-label {
+  font-size: 12px;
+  color: #111;
+  opacity: 0.85;
+}
+
+.sv-input {
+  height: 38px;
+  border: none;
+  border-bottom: 1px solid #e5e5e5;
+  outline: none;
+  font-size: 14px;
+  padding: 6px 2px;
+  background: transparent;
+}
+
+.sv-footer {
+  padding: 14px 20px 22px;
+}
+
+.sv-next {
+  width: 100%;
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  background: #d9d9d9;
+  color: #111;
+  font-weight: 700;
+  cursor: not-allowed;
+
+  transition: background-color 220ms ease, color 220ms ease, opacity 220ms ease;
+}
+
+.sv-next.active {
+  background: #2CC295;
+  color: #fff;
+  cursor: pointer;
+}
+
+.sv-next:disabled {
+  opacity: 1;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .login-input,
+  .sv-input,
+  .su2-input {
+    font-size: 16px; /* iOS에서만 확대 방지 */
+  }
+}

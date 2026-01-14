@@ -1,0 +1,106 @@
+.su2-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.su2-content {
+  flex: 1;
+  padding: 18px 20px 0;
+}
+
+.su2-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.su2-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.su2-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.su2-label {
+  font-size: 12px;
+  color: #111;
+  opacity: 0.85;
+}
+
+.su2-input {
+  height: 38px;
+  border: none;
+  border-bottom: 1px solid #e5e5e5;
+  outline: none;
+
+  font-size: 16px; /* ✅ iOS Safari input 포커스 확대 방지 */
+  padding: 6px 2px;
+  background: transparent;
+}
+
+.su2-verify-btn {
+  height: 34px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 10px;
+  background: #d9d9d9;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.su2-hint {
+  font-size: 11px;
+  color: #111;
+  opacity: 0.55;
+  margin-top: -8px;
+  text-align: right;
+}
+
+.su2-error {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #d33;
+  text-align: center;
+}
+
+.su2-footer {
+  padding: 14px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.su2-submit {
+  width: 100%;
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  background: #d9d9d9;
+  color: #111;
+  font-weight: 700;
+  cursor: not-allowed;
+
+  transition: background-color 220ms ease, color 220ms ease, opacity 220ms ease;
+}
+
+.su2-submit.active {
+  background: #2CC295;
+  color: #fff;
+  cursor: pointer;
+}
+
+.su2-footer-note {
+  text-align: center;
+  font-size: 11px;
+  color: #111;
+  opacity: 0.6;
+}

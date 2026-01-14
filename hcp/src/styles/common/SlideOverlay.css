@@ -1,0 +1,6 @@
+.slide-overlay {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 50;
+}

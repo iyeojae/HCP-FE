@@ -1,0 +1,38 @@
+.app-header {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+}
+
+.app-header__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+}
+
+.app-header__back {
+  position: absolute;
+  left: 10px;
+  height: 36px;
+  width: 36px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-header__backIcon {
+  font-size: 26px;
+  line-height: 1;
+  color: #111;
+  transform: translateY(-1px);
+}

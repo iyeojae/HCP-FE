@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../../api/axios";
 import { storage } from "../../utils/storage";
 import "../../styles/auth/LoginPage.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [studentNo, setStudentNo] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +22,7 @@ export default function LoginPage() {
     );
   }, [studentNo, password, submitting]);
 
-  // ✅ baseURL이 http://localhost:8080/api 로 고정이라면, 경로는 항상 아래처럼 쓰면 됩니다.
+  // baseURL이 http://localhost:8080/api 라면 항상 이 경로 사용
   const loginPath = "/auth/login";
 
   const handleSubmit = async (e) => {
@@ -36,6 +37,14 @@ export default function LoginPage() {
       return;
     }
 
+    // ✅ 더미 로그인
+    if (sn === "test1234" && pw === "test1234") {
+      storage.setAccessToken("DUMMY_ACCESS_TOKEN");
+      storage.setUser({ loginId: "test1234", studentNo: "test1234" });
+      navigate("/", { replace: true });
+      return;
+    }
+
     try {
       setSubmitting(true);
 
@@ -46,7 +55,6 @@ export default function LoginPage() {
 
       const data = res?.data ?? {};
 
-      // 1) 바디에서 토큰 찾기
       let token =
         data.accessToken ||
         data.token ||
@@ -55,7 +63,6 @@ export default function LoginPage() {
         data?.result?.accessToken ||
         null;
 
-      // 2) 헤더에서 토큰 찾기(Authorization: Bearer xxx 형태)
       const authHeader =
         res?.headers?.authorization || res?.headers?.Authorization || null;
       if (!token && authHeader && typeof authHeader === "string") {
@@ -64,7 +71,6 @@ export default function LoginPage() {
           : authHeader;
       }
 
-      // 3) 유저 정보(선택)
       const user =
         data.user ||
         data.member ||
@@ -84,7 +90,6 @@ export default function LoginPage() {
       if (user) storage.setUser(user);
       else storage.setUser({ studentNo: sn });
 
-      // 다음 페이지는 추후 메인 라우트로 교체
       navigate("/", { replace: true });
     } catch (err) {
       const msg =
@@ -99,16 +104,12 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      {/* 상단 로고 영역(틀만) */}
       <div className="login-brand">
         <div className="login-brand-box" aria-label="로고 영역">
-          로고나 브랜드 또는
-          <br />
-          아이콘 캐릭터
+          로고나 브랜드 또는<br />아이콘 캐릭터
         </div>
       </div>
 
-      {/* 입력/버튼 */}
       <form className="login-form" onSubmit={handleSubmit}>
         <input
           className="login-input"
@@ -137,7 +138,6 @@ export default function LoginPage() {
 
         {errorMsg ? <div className="login-error">{errorMsg}</div> : null}
 
-        {/* 비밀번호 찾기 | 회원가입 */}
         <div className="login-links">
           <button
             type="button"
@@ -152,14 +152,16 @@ export default function LoginPage() {
           <button
             type="button"
             className="link-btn"
-            onClick={() => navigate("/signup")}
+            // ✅ 오버레이 슬라이드용 backgroundLocation 전달
+            onClick={() =>
+              navigate("/signup", { state: { backgroundLocation: location } })
+            }
           >
             회원가입
           </button>
         </div>
       </form>
 
-      {/* 간편 로그인 버튼(틀만) */}
       <div className="login-easy">
         <button type="button" className="easy-login-btn" onClick={() => {}}>
           간편 로그인 네이버,구글 ...
