@@ -1,12 +1,13 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import AppRouter from "./routes/Router";
+import "./styles/globals.css"; // ✅ index.js 안 건드리니 전역 CSS는 App에서 로드
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
-      
-    </div>
+    <BrowserRouter>
+      <AppRouter />
+    </BrowserRouter>
   );
 }
-
-export default App;

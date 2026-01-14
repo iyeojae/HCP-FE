@@ -1,0 +1,58 @@
+/* src/pages/splash/SplashPage.css */
+.splash {
+  min-height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0 28px;
+}
+
+/* 원이 대략 화면 중앙보다 살짝 위에 오도록 */
+.splash-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 9999px;
+  background: #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* (선택) 아주 가벼운 등장 애니메이션 */
+  animation: popIn 500ms ease-out;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: 700;
+  color: #444;
+}
+
+.logo-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.splash-note {
+  text-align: center;
+  padding: 0 16px 18px;
+  color: #222;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.splash-note p {
+  margin: 0;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
