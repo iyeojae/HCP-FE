@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import api from "../../api/axios";
+// import api from "../../api/axios";
 import AppHeader from "../../components/common/AppHeader";
 import AlertModal from "../../components/common/AlertModal";
 import "../../styles/auth/SignupStep2Page.css";
@@ -32,7 +32,6 @@ export default function SignupStep2Page() {
 
   const handleRequestCode = () => {
     // ✅ API 아직 없으므로 틀만
-    // api.post("/auth/verify-email", { email: loginId }) 같은 형태로 추후 연결
     alert("인증번호 API는 추후 연결 예정입니다.");
   };
 
@@ -46,10 +45,16 @@ export default function SignupStep2Page() {
       return;
     }
 
+    // ✅ 현재는 API 호출이 원활하지 않으므로 "무조건 성공" 처리
+    // (나중에 배포되면 아래 주석 해제하고 try/catch 로 바꾸면 됨)
+    setSubmitting(true);
+    setDoneOpen(true);
+    setSubmitting(false);
+
+    /*
     try {
       setSubmitting(true);
 
-      // baseURL이 /api 포함이므로 엔드포인트는 아래처럼
       await api.post("/auth/signup", {
         loginId: loginId.trim(),
         password: pw.trim(),
@@ -58,7 +63,6 @@ export default function SignupStep2Page() {
         department: draft.department.trim(),
       });
 
-      // 성공 팝업
       setDoneOpen(true);
     } catch (err) {
       const msg =
@@ -69,11 +73,11 @@ export default function SignupStep2Page() {
     } finally {
       setSubmitting(false);
     }
+    */
   };
 
   const handleDoneClose = () => {
     setDoneOpen(false);
-    // 로그인 페이지로 이동(오버레이 상태였다면 깔끔하게 로그인으로)
     navigate("/login", { replace: true });
   };
 
@@ -103,9 +107,7 @@ export default function SignupStep2Page() {
             </button>
           </div>
 
-          <div className="su2-hint">
-            버튼 누르면 인증번호가 날아오게할 예정임
-          </div>
+          <div className="su2-hint">버튼 누르면 인증번호가 날아오게할 예정임</div>
 
           <label className="su2-field">
             <span className="su2-label">인증코드 작성칸</span>

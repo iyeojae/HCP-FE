@@ -6,6 +6,9 @@
   align-items: center;
   justify-content: center;
   z-index: 2000;
+
+  /* ✅ 오버레이 서서히 등장 */
+  animation: amFadeIn 160ms ease-out;
 }
 
 .am-modal {
@@ -14,6 +17,10 @@
   border-radius: 14px;
   padding: 18px 16px 14px;
   text-align: center;
+
+  /* ✅ 중앙에서 커지며 등장 */
+  transform-origin: center;
+  animation: amPopIn 220ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .am-title {
@@ -32,4 +39,23 @@
   color: #fff;
   font-weight: 700;
   cursor: pointer;
+}
+
+/* ✅ 키프레임 */
+@keyframes amFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes amPopIn {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ✅ 모션 최소화 설정을 켠 사용자 배려 */
+@media (prefers-reduced-motion: reduce) {
+  .am-overlay,
+  .am-modal {
+    animation: none;
+  }
 }
