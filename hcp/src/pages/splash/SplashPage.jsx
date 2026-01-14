@@ -14,8 +14,8 @@ export default function SplashPage() {
     // - accessToken 존재하면 메인으로
     // - 없으면 로그인으로
     const t = setTimeout(() => {
-      // navigate("/login"); // 예시
-    }, 900);
+      navigate("/login");
+    }, 2500);
 
     return () => clearTimeout(t);
   }, [navigate]);

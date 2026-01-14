@@ -1,10 +1,11 @@
-// src/routes/AppRouter.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+
 import MobileAppLayout from "../components/layout/MobileAppLayout";
 import SplashPage from "../pages/splash/SplashPage";
+import LoginPage from "../pages/auth/LoginPage";
 
-export default function AppRouter() {
+export default function Router() {
   return (
     <Routes>
       <Route
@@ -16,8 +17,14 @@ export default function AppRouter() {
         }
       />
 
-      {/* 관리자 라우트는 추후 /admin/* 로 분리 */}
-      {/* <Route path="/admin/*" element={<AdminLayout>...</AdminLayout>} /> */}
+      <Route
+        path="/login"
+        element={
+          <MobileAppLayout>
+            <LoginPage />
+          </MobileAppLayout>
+        }
+      />
     </Routes>
   );
 }
