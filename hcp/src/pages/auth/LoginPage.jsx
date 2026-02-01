@@ -41,7 +41,7 @@ export default function LoginPage() {
     if (sn === "test1234" && pw === "test1234") {
       storage.setAccessToken("DUMMY_ACCESS_TOKEN");
       storage.setUser({ loginId: "test1234", studentNo: "test1234" });
-      navigate("/", { replace: true });
+      navigate("/main", { replace: true });
       return;
     }
 

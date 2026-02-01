@@ -1,0 +1,60 @@
+.app-menu {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px;
+  width: min(360px, calc(100% - 36px));
+  height: 62px;
+  border-radius: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+
+  /* 배경 비침 + 블러 */
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  z-index: 30;
+}
+
+.app-menu__item {
+  width: 72px;
+  height: 46px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.app-menu__item:active {
+  transform: scale(0.98);
+}
+
+.app-menu__iconSlot {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.app-menu__item.active {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+/* iOS safe-area 대응 */
+@supports (padding: max(0px)) {
+  .app-menu {
+    bottom: max(18px, env(safe-area-inset-bottom));
+  }
+}

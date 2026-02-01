@@ -9,20 +9,26 @@ import SplashPage from "../pages/splash/SplashPage";
 import LoginPage from "../pages/auth/LoginPage";
 import SignupVerifyPage from "../pages/auth/SignupVerifyPage";
 import SignupStep2Page from "../pages/auth/SignupStep2Page";
+import MainPage from "../pages/main/MainPage"; // ✅ 추가
 
 export default function Router() {
   const location = useLocation();
 
-  const baseLocation = location.state?.backgroundLocation;      // 로그인(바닥)
+  // 로그인(바닥), Step1(한 장 아래)을 state로 유지하는 스택 방식
+  const baseLocation = location.state?.backgroundLocation;        // 로그인(바닥)
   const prevOverlayLocation = location.state?.prevOverlayLocation; // Step1(한 장 아래)
 
   return (
     <MobileAppLayout>
-      {/* 1) 바닥(로그인 등) */}
+      {/* 1) 바닥(로그인/메인 등): baseLocation이 있으면 그걸 기준으로 렌더 */}
       <Routes location={baseLocation || location}>
         <Route path="/" element={<SplashPage />} />
         <Route path="/login" element={<LoginPage />} />
-        {/* 직접 접근 대비 */}
+
+        {/* ✅ 메인 페이지 라우트 추가 */}
+        <Route path="/main" element={<MainPage />} />
+
+        {/* 직접 접근 대비(오버레이 없을 때도 정상 렌더) */}
         <Route path="/signup" element={<SignupVerifyPage />} />
         <Route path="/signup/step2" element={<SignupStep2Page />} />
       </Routes>
@@ -67,4 +73,3 @@ export default function Router() {
     </MobileAppLayout>
   );
 }
-

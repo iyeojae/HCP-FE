@@ -1,0 +1,60 @@
+.app-header {
+  /* ✅ 페이지 위에 덮지 않고, 페이지 안 레이아웃의 일부로 */
+  position: relative;
+  z-index: 5;
+
+  /* ✅ 배경 투명 */
+  background: transparent;
+}
+
+.app-header__right {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  /* ✅ 페이지 안쪽 여백(메인 배경과 자연스럽게) */
+  padding: 14px 14px 0;
+}
+
+/* 버튼 */
+.app-header__iconBtn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-header__iconBtn:active {
+  transform: scale(0.96);
+}
+
+/* 검색 아이콘 자리(너가 SVG 넣을 곳) */
+.app-header__iconSlot {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+/* 햄버거(흰 줄 3개) */
+.hamburger {
+  width: 20px;
+  height: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hamburger__line {
+  height: 2px;
+  width: 100%;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.95);
+}
