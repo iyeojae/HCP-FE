@@ -97,8 +97,8 @@
   max-width: 4.5rem;
 
   /* ✅ height: 화면보다 작게 */
-  height: min(78dvh, 34rem);
-  min-height: 18rem;
+  height: min(10dvh, 10rem);
+  min-height: 10rem;
 
   top: clamp(4rem, 10dvh, 6rem);
 
@@ -127,40 +127,45 @@
   pointer-events: auto;
 }
 
-/* 닫기 버튼 */
-.header-sideTab__close {
-  position: absolute;
-  top: clamp(0.5rem, 2vw, 0.75rem);
-  left: clamp(0.5rem, 2vw, 0.75rem);
-
-  width: clamp(1.6rem, 6vw, 2rem);
-  height: clamp(1.6rem, 6vw, 2rem);
-
-  border: none;
-  border-radius: 999rem;
-  cursor: pointer;
-
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.92);
-  font-size: clamp(1rem, 4.5vw, 1.25rem);
-  line-height: 1;
-
-  display: grid;
-  place-items: center;
-}
-
-/* 탭 내용(일단 점 3개로 탭 느낌) */
+/* 탭 내용: 버튼 3개를 세로로 */
 .header-sideTab__content {
   height: 100%;
-  display: grid;
-  place-items: center;
-  gap: clamp(0.4rem, 2vw, 0.6rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 2.2vw, 0.75rem);
   padding: clamp(2.5rem, 10vw, 3.5rem) 0 clamp(1rem, 4vw, 1.5rem);
 }
 
-.header-sideTab__dot {
-  width: clamp(0.35rem, 1.6vw, 0.5rem);
-  height: clamp(0.35rem, 1.6vw, 0.5rem);
+/* 아이콘 버튼 */
+.header-sideTab__itemBtn {
+  appearance: none;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.14);
   border-radius: 999rem;
-  background: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+
+  width: clamp(2.1rem, 7.5vw, 2.7rem);
+  height: clamp(2.1rem, 7.5vw, 2.7rem);
+
+  display: grid;
+  place-items: center;
+
+  transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.header-sideTab__itemBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.header-sideTab__itemBtn:active {
+  transform: scale(0.97);
+}
+
+.header-sideTab__itemImg {
+  width: clamp(1.2rem, 4.5vw, 1.55rem);
+  height: clamp(1.2rem, 4.5vw, 1.55rem);
+  display: block;
 }
