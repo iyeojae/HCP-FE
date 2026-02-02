@@ -9,33 +9,69 @@ import SplashPage from "../pages/splash/SplashPage";
 import LoginPage from "../pages/auth/LoginPage";
 import SignupVerifyPage from "../pages/auth/SignupVerifyPage";
 import SignupStep2Page from "../pages/auth/SignupStep2Page";
-import MainPage from "../pages/main/MainPage"; // ✅ 추가
+
+import ProtectedRoute from "./ProtectedRoute";
+import AppShell from "../components/AppShell";
+
+// ✅ 중요 페이지(껍데기 안에 들어갈 페이지들)
+import MainPage from "../pages/main/MainPage";
+
+// ✅ 임시 페이지(파일 추가 없이 Router에서만 임시로 처리)
+function TempPage({ title }) {
+  return (
+    <div style={{ padding: "18px 20px" }}>
+      <div
+        style={{
+          borderRadius: 14,
+          padding: "18px 16px",
+          background: "rgba(255,255,255,0.12)",
+          border: "1px solid rgba(255,255,255,0.18)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          color: "#fff",
+          fontWeight: 700,
+        }}
+      >
+        {title} (임시 페이지)
+      </div>
+    </div>
+  );
+}
 
 export default function Router() {
   const location = useLocation();
 
-  // 로그인(바닥), Step1(한 장 아래)을 state로 유지하는 스택 방식
-  const baseLocation = location.state?.backgroundLocation;        // 로그인(바닥)
-  const prevOverlayLocation = location.state?.prevOverlayLocation; // Step1(한 장 아래)
+  const baseLocation = location.state?.backgroundLocation;
+  const prevOverlayLocation = location.state?.prevOverlayLocation;
 
   return (
     <MobileAppLayout>
-      {/* 1) 바닥(로그인/메인 등): baseLocation이 있으면 그걸 기준으로 렌더 */}
+      {/* 1) 바닥(일반 라우트 + 보호 라우트) */}
       <Routes location={baseLocation || location}>
+        {/* Public */}
         <Route path="/" element={<SplashPage />} />
         <Route path="/login" element={<LoginPage />} />
 
-        {/* ✅ 메인 페이지 라우트 추가 */}
-        <Route path="/main" element={<MainPage />} />
+        {/* ✅ Protected App 영역 (배경/헤더/메뉴 고정) */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppShell />}>
+            <Route path="/main" element={<MainPage />} />
+            <Route path="/clubs" element={<TempPage title="동아리" />} />
+            <Route path="/mypage" element={<TempPage title="마이페이지" />} />
+          </Route>
+        </Route>
 
-        {/* 직접 접근 대비(오버레이 없을 때도 정상 렌더) */}
+        {/* signup (public) */}
         <Route path="/signup" element={<SignupVerifyPage />} />
         <Route path="/signup/step2" element={<SignupStep2Page />} />
       </Routes>
 
-      {/* 2) Step1을 "정적 오버레이"로 유지 (Step2에서만 존재) */}
+      {/* 2) Step1 정적 오버레이 유지 */}
       {prevOverlayLocation ? (
-        <Routes location={prevOverlayLocation} key={`prev-${prevOverlayLocation.key}`}>
+        <Routes
+          location={prevOverlayLocation}
+          key={`prev-${prevOverlayLocation.key}`}
+        >
           <Route
             path="/signup"
             element={
@@ -47,7 +83,7 @@ export default function Router() {
         </Routes>
       ) : null}
 
-      {/* 3) 현재 오버레이(애니메이션): Step1 또는 Step2 */}
+      {/* 3) 현재 오버레이(애니메이션) */}
       <AnimatePresence initial={false}>
         {baseLocation ? (
           <Routes location={location} key={`cur-${location.key}`}>

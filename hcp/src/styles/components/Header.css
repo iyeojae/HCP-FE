@@ -5,6 +5,7 @@
 
   /* ✅ 배경 투명 */
   background: transparent;
+  justify-content: end;
 }
 
 .app-header__right {

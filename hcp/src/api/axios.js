@@ -2,10 +2,19 @@
 import axios from "axios";
 import { storage } from "../utils/storage";
 
+const BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080/api";
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || "http://localhost:8080/api",
+  baseURL: BASE_URL,
   timeout: 15000,
   withCredentials: true, // refreshToken을 HttpOnly Cookie로 쓰는 경우 필수
+});
+
+// ✅ refresh 전용(인터셉터 없는) 클라이언트
+const refreshClient = axios.create({
+  baseURL: BASE_URL,
+  timeout: 15000,
+  withCredentials: true,
 });
 
 /**
@@ -13,8 +22,9 @@ const api = axios.create({
  */
 api.interceptors.request.use(
   (config) => {
-    const token = storage.getAccessToken();
+    const token = storage.getAccessToken?.();
     if (token) {
+      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -22,46 +32,72 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-/**
- * 401 처리(옵션):
- * - refreshToken은 프론트에 저장하지 않고, 서버 쿠키 기반으로 재발급만 호출하는 형태를 가정
- * - 백엔드 스펙이 정해지면 refresh endpoint만 맞추면 됨
- *
- * 만약 "서버가 알아서 재발급하고 401이 안 난다"면 아래 로직은 꺼도 됩니다.
- */
 let isRefreshing = false;
 let refreshQueue = [];
 
 function processQueue(error, newAccessToken = null) {
-  refreshQueue.forEach((prom) => {
-    if (error) prom.reject(error);
-    else prom.resolve(newAccessToken);
+  refreshQueue.forEach((p) => {
+    if (error) p.reject(error);
+    else p.resolve(newAccessToken);
   });
   refreshQueue = [];
 }
 
+function clearAuthFallback() {
+  if (storage.clearAuth) storage.clearAuth();
+  else if (storage.clearAll) storage.clearAll();
+  else {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+  }
+}
+
+function extractAccessToken(res) {
+  const data = res?.data ?? {};
+  let token =
+    data.accessToken ||
+    data.token ||
+    data.access_token ||
+    data?.data?.accessToken ||
+    data?.result?.accessToken ||
+    null;
+
+  const authHeader = res?.headers?.authorization || res?.headers?.Authorization || null;
+  if (!token && typeof authHeader === "string") {
+    token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+  }
+  return token;
+}
+
+/**
+ * 401 처리 (쿠키 기반 refresh)
+ */
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
 
-    // 네트워크/타임아웃 등
     if (!error.response) return Promise.reject(error);
 
     const status = error.response.status;
+    const url = original?.url || "";
 
-    // 이미 재시도 했으면 종료
+    // ✅ refresh 자체가 401이면 더 이상 재시도 금지
+    if (url.includes("/auth/refresh")) {
+      clearAuthFallback();
+      return Promise.reject(error);
+    }
+
+    // 401이 아니거나, 이미 재시도면 종료
     if (status !== 401 || original._retry) return Promise.reject(error);
-
-    // refresh를 아예 쓰지 않을 계획이면 아래 401 처리에서 바로 storage.clearAuth() 후 라우팅만 하세요.
-    // 여기서는 "쿠키 기반 refresh endpoint 호출"을 기본 템플릿으로 둡니다.
     original._retry = true;
 
+    // refresh 중이면 큐 대기
     if (isRefreshing) {
-      // refresh 중이면 큐에 쌓아 대기 후 재시도
       return new Promise((resolve, reject) => {
         refreshQueue.push({
           resolve: (newToken) => {
+            original.headers = original.headers || {};
             original.headers.Authorization = `Bearer ${newToken}`;
             resolve(api(original));
           },
@@ -73,23 +109,23 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      // 예시) 서버가 refresh 쿠키를 보고 새 accessToken을 반환한다고 가정
-      // 실제 경로/응답 포맷은 백엔드에 맞게 수정
-      const refreshRes = await api.post("/auth/refresh");
-      const newToken = refreshRes.data?.accessToken;
+      // ✅ refresh는 refreshClient로 호출(인터셉터 루프 방지)
+      const refreshRes = await refreshClient.post("/auth/refresh");
+      const newToken = extractAccessToken(refreshRes);
 
       if (!newToken) throw new Error("No accessToken in refresh response");
 
-      storage.setAccessToken(newToken);
-
+      storage.setAccessToken?.(newToken);
       processQueue(null, newToken);
 
+      original.headers = original.headers || {};
       original.headers.Authorization = `Bearer ${newToken}`;
       return api(original);
     } catch (e) {
       processQueue(e, null);
-      storage.clearAuth();
-      // 여기서 window.location.href = "/login"; 같은 강제 이동도 가능
+      clearAuthFallback();
+      // 필요하면 강제 이동:
+      // window.location.href = "/login";
       return Promise.reject(e);
     } finally {
       isRefreshing = false;

@@ -40,6 +40,15 @@
   transform: scale(0.98);
 }
 
+/* ✅ SVG를 img로 넣을 때 */
+.app-menu__iconImg {
+  width: 26px;
+  height: 26px;
+  display: block;
+  object-fit: contain;
+}
+
+/* 아이콘 없을 때 placeholder */
 .app-menu__iconSlot {
   width: 26px;
   height: 26px;
@@ -48,6 +57,7 @@
   border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
+/* 선택된 탭 */
 .app-menu__item.active {
   background: rgba(255, 255, 255, 0.10);
 }
