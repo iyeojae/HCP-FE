@@ -1,61 +1,166 @@
 .app-header {
-  /* ✅ 페이지 위에 덮지 않고, 페이지 안 레이아웃의 일부로 */
   position: relative;
   z-index: 5;
-
-  /* ✅ 배경 투명 */
   background: transparent;
+
   justify-content: end;
 }
 
 .app-header__right {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-
-  /* ✅ 페이지 안쪽 여백(메인 배경과 자연스럽게) */
-  padding: 14px 14px 0;
+  gap: clamp(0.5rem, 2vw, 0.75rem);
+  padding: clamp(0.75rem, 3vw, 1rem) clamp(0.75rem, 3vw, 1rem) 0;
 }
 
-/* 버튼 */
 .app-header__iconBtn {
-  width: 32px;
-  height: 32px;
+  appearance: none;
   border: none;
   background: transparent;
-  padding: 0;
   cursor: pointer;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: clamp(2.25rem, 9vw, 2.75rem);
+  height: clamp(2.25rem, 9vw, 2.75rem);
+  display: grid;
+  place-items: center;
+
+  border-radius: 999rem;
+  transition: background-color 180ms ease, transform 180ms ease;
 }
 
 .app-header__iconBtn:active {
-  transform: scale(0.96);
+  transform: scale(0.98);
 }
 
-/* 검색 아이콘 자리(너가 SVG 넣을 곳) */
-.app-header__iconSlot {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+.app-header__iconBtn:hover {
+  background: rgba(255, 255, 255, 0.10);
 }
 
-/* 햄버거(흰 줄 3개) */
+.app-header__iconImg {
+  width: clamp(1.25rem, 5vw, 1.6rem);
+  height: clamp(1.25rem, 5vw, 1.6rem);
+  display: block;
+}
+
+/* 햄버거 */
 .hamburger {
-  width: 20px;
-  height: 16px;
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  gap: clamp(0.2rem, 0.9vw, 0.28rem);
 }
 
 .hamburger__line {
-  height: 2px;
-  width: 100%;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.95);
+  width: clamp(1.2rem, 5.2vw, 1.55rem);
+  height: clamp(0.12rem, 0.45vw, 0.16rem);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999rem;
+}
+
+/* =========================
+   ✅ 오버레이 + 오른쪽 탭
+   ========================= */
+
+/* 전체 화면 흐림 */
+.header-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(clamp(0.4rem, 1.6vw, 0.9rem));
+  -webkit-backdrop-filter: blur(clamp(0.4rem, 1.6vw, 0.9rem));
+
+  transition: opacity 280ms ease, visibility 0ms linear 280ms;
+}
+
+.header-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 280ms ease;
+}
+
+/* 오른쪽에서 나오는 작은 탭 */
+.header-sideTab {
+  position: fixed;
+  z-index: 30;
+  right: 0;
+
+  /* ✅ width: 화면의 약 10% 느낌 */
+  width: 10vw;
+  min-width: clamp(2.75rem, 10vw, 4.5rem);
+  max-width: 4.5rem;
+
+  /* ✅ height: 화면보다 작게 */
+  height: min(78dvh, 34rem);
+  min-height: 18rem;
+
+  top: clamp(4rem, 10dvh, 6rem);
+
+  border-top-left-radius: clamp(0.9rem, 3vw, 1.25rem);
+  border-bottom-left-radius: clamp(0.9rem, 3vw, 1.25rem);
+
+  background: rgba(255, 255, 255, 0.10);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0.9rem 2.4rem rgba(0, 0, 0, 0.35);
+
+  backdrop-filter: blur(clamp(0.55rem, 2vw, 1rem));
+  -webkit-backdrop-filter: blur(clamp(0.55rem, 2vw, 1rem));
+
+  /* ✅ 기본은 화면 밖 */
+  transform: translateX(120%);
+  opacity: 0;
+  pointer-events: none;
+
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 260ms ease;
+}
+
+.header-sideTab.is-open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 닫기 버튼 */
+.header-sideTab__close {
+  position: absolute;
+  top: clamp(0.5rem, 2vw, 0.75rem);
+  left: clamp(0.5rem, 2vw, 0.75rem);
+
+  width: clamp(1.6rem, 6vw, 2rem);
+  height: clamp(1.6rem, 6vw, 2rem);
+
+  border: none;
+  border-radius: 999rem;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(1rem, 4.5vw, 1.25rem);
+  line-height: 1;
+
+  display: grid;
+  place-items: center;
+}
+
+/* 탭 내용(일단 점 3개로 탭 느낌) */
+.header-sideTab__content {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  gap: clamp(0.4rem, 2vw, 0.6rem);
+  padding: clamp(2.5rem, 10vw, 3.5rem) 0 clamp(1rem, 4vw, 1.5rem);
+}
+
+.header-sideTab__dot {
+  width: clamp(0.35rem, 1.6vw, 0.5rem);
+  height: clamp(0.35rem, 1.6vw, 0.5rem);
+  border-radius: 999rem;
+  background: rgba(255, 255, 255, 0.85);
 }

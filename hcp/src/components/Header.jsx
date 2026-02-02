@@ -69,8 +69,30 @@ export default function Header({ onSearch, onMenu }) {
         aria-hidden={!tabOpen}
       />
 
-  
-      
+      {/* ✅ 오른쪽 작은 탭(슬라이드) */}
+      <aside
+        id="header-side-tab"
+        className={`header-sideTab ${tabOpen ? "is-open" : ""}`}
+        role="dialog"
+        aria-label="메뉴 탭"
+        aria-hidden={!tabOpen}
+      >
+        {/* 내용은 네가 원하는 걸로 바꿔도 됨 (지금은 틀만) */}
+        <button
+          type="button"
+          className="header-sideTab__close"
+          onClick={closeTab}
+          aria-label="닫기"
+        >
+          ×
+        </button>
+
+        <div className="header-sideTab__content">
+          <div className="header-sideTab__dot" />
+          <div className="header-sideTab__dot" />
+          <div className="header-sideTab__dot" />
+        </div>
+      </aside>
     </>
   );
 }
