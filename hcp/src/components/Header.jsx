@@ -1,34 +1,76 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/components/Header.css";
 
-export default function Header({ onSearch, onMenu }) {
-  return (
-    <header className="app-header" aria-label="상단 헤더">
-      <div className="app-header__right">
-        {/* 검색 아이콘: 너가 SVG로 교체할 자리(틀) */}
-        <button
-          type="button"
-          className="app-header__iconBtn"
-          onClick={onSearch}
-          aria-label="검색"
-        >
-          <span className="app-header__iconSlot" aria-hidden="true" />
-        </button>
+import SearchIcon from "../assets/header/search.svg";
 
-        {/* 햄버거 아이콘: 흰 줄 3개 */}
-        <button
-          type="button"
-          className="app-header__iconBtn"
-          onClick={onMenu}
-          aria-label="메뉴"
-        >
-          <span className="hamburger" aria-hidden="true">
-            <span className="hamburger__line" />
-            <span className="hamburger__line" />
-            <span className="hamburger__line" />
-          </span>
-        </button>
-      </div>
-    </header>
+export default function Header({ onSearch, onMenu }) {
+  const [tabOpen, setTabOpen] = useState(false);
+
+  const openTab = () => {
+    setTabOpen(true);
+    onMenu?.(); // 기존 onMenu도 필요하면 그대로 호출
+  };
+
+  const closeTab = () => setTabOpen(false);
+
+  // ESC로 닫기
+  useEffect(() => {
+    if (!tabOpen) return;
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") closeTab();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [tabOpen]);
+
+  return (
+    <>
+      <header className="app-header" aria-label="상단 헤더">
+        <div className="app-header__right">
+          {/* ✅ 검색 아이콘 */}
+          <button
+            type="button"
+            className="app-header__iconBtn"
+            onClick={onSearch}
+            aria-label="검색"
+          >
+            <img
+              src={SearchIcon}
+              alt=""
+              aria-hidden="true"
+              className="app-header__iconImg"
+            />
+          </button>
+
+          {/* ✅ 햄버거 아이콘 */}
+          <button
+            type="button"
+            className="app-header__iconBtn"
+            onClick={openTab}
+            aria-label="메뉴"
+            aria-expanded={tabOpen}
+            aria-controls="header-side-tab"
+          >
+            <span className="hamburger" aria-hidden="true">
+              <span className="hamburger__line" />
+              <span className="hamburger__line" />
+              <span className="hamburger__line" />
+            </span>
+          </button>
+        </div>
+      </header>
+
+      {/* ✅ 전체 흐림 오버레이 */}
+      <div
+        className={`header-overlay ${tabOpen ? "is-open" : ""}`}
+        onClick={closeTab}
+        aria-hidden={!tabOpen}
+      />
+
+  
+      
+    </>
   );
 }

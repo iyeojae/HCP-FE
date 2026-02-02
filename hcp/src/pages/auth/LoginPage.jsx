@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../../api/axios";
 import { storage } from "../../utils/storage";
@@ -7,6 +7,9 @@ import "../../styles/auth/LoginPage.css";
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // ✅ 별 캔버스
+  const canvasRef = useRef(null);
 
   const [studentNo, setStudentNo] = useState("");
   const [password, setPassword] = useState("");
@@ -22,8 +25,79 @@ export default function LoginPage() {
     );
   }, [studentNo, password, submitting]);
 
-  // baseURL이 http://localhost:8080/api 라면 항상 이 경로 사용
   const loginPath = "/auth/login";
+
+  // ✅ AppShell과 동일한 별 찍기 로직 (산 없음)
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return;
+
+    const mulberry32 = (seed) => () => {
+      let t = (seed += 0x6d2b79f5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+
+    const draw = () => {
+      const parent = canvas.parentElement;
+      if (!parent) return;
+
+      const cssW = parent.clientWidth;
+      const cssH = parent.clientHeight;
+
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(cssW * dpr);
+      canvas.height = Math.floor(cssH * dpr);
+      canvas.style.width = `${cssW}px`;
+      canvas.style.height = `${cssH}px`;
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssW, cssH);
+
+      // AppShell과 동일: 상단 위주로 별 (산이 없더라도 “동일한 느낌” 유지)
+      const starAreaH = cssH * 0.72;
+      const density = 1 / 9000;
+      const count = Math.max(40, Math.floor(cssW * starAreaH * density));
+
+      const r = mulberry32(12345);
+
+      for (let i = 0; i < count; i++) {
+        const x = r() * cssW;
+        const y = r() * starAreaH;
+
+        const radius = 0.6 + r() * 1.2;
+        const alpha = 0.25 + r() * 0.65;
+
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (r() > 0.985) {
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255,255,255,0.95)`;
+          ctx.arc(x, y, radius * 1.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    };
+
+    draw();
+
+    const ro = new ResizeObserver(() => draw());
+    if (canvas.parentElement) ro.observe(canvas.parentElement);
+
+    window.addEventListener("orientationchange", draw);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("orientationchange", draw);
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -104,6 +178,9 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
+      {/* ✅ 배경 별 캔버스(추가) */}
+      <canvas ref={canvasRef} className="login-stars" aria-hidden="true" />
+
       <div className="login-brand">
         <div className="login-brand-box" aria-label="로고 영역">
           로고나 브랜드 또는<br />아이콘 캐릭터
@@ -152,7 +229,6 @@ export default function LoginPage() {
           <button
             type="button"
             className="link-btn"
-            // ✅ 오버레이 슬라이드용 backgroundLocation 전달
             onClick={() =>
               navigate("/signup", { state: { backgroundLocation: location } })
             }

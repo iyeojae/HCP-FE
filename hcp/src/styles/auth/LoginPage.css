@@ -1,9 +1,36 @@
 .login-page {
   min-height: 100vh;
-  background: #fff;
+  min-height: 100dvh;
+  position: relative;
+  overflow: hidden;
+
+  /* ✅ AppShell과 동일 그라데이션 배경 */
+  background: linear-gradient(
+    180deg,
+    #4D2A66 13%,
+    #1C181E 40%,
+    #0E1324 69%
+  );
+
   display: flex;
   flex-direction: column;
   padding: 24px 18px 30px;
+}
+
+/* ✅ 별 캔버스 레이어 */
+.login-stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ✅ 기존 컨텐츠는 캔버스 위로 */
+.login-page > *:not(.login-stars) {
+  position: relative;
+  z-index: 1;
 }
 
 /* 상단 로고 영역은 위에 고정 */
@@ -33,7 +60,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center; /* ✅ 상하 중앙 */
-  align-items: stretch;     /* ✅ input/button은 가로로 꽉(패딩으로 폭 제어) */
+  align-items: stretch; /* ✅ input/button은 가로로 꽉(패딩으로 폭 제어) */
   gap: 14px;
   padding: 0 8px;
 }
@@ -58,12 +85,12 @@
   font-weight: 700;
   cursor: pointer;
 
-  background: transparent;              /* ✅ 배경은 ::before가 담당 */
+  background: transparent; /* ✅ 배경은 ::before가 담당 */
   color: #111;
-  position: relative;                  /* ✅ ::before 위치 기준 */
-  overflow: hidden;                    /* ✅ 퍼지는 효과 잘리게 */
+  position: relative; /* ✅ ::before 위치 기준 */
+  overflow: hidden; /* ✅ 퍼지는 효과 잘리게 */
   z-index: 0;
-  border: 2px solid #cfcfcf;           /* ✅ 비활성 테두리 느낌(원하면) */
+  border: 2px solid #cfcfcf; /* ✅ 비활성 테두리 느낌(원하면) */
   transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
 }
 
@@ -77,25 +104,25 @@
   border-radius: inherit;
   transform: scale(0);
   z-index: -1;
-  background-color: #2CC295; /* ✅ 활성 색 유지 */
+  background-color: white; /* ✅ 활성 색 유지 */
   transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
 }
 
 .login-button.active {
-   color: #fff;                       /* ✅ 활성 시 글자 흰색 */
-   border-color: #2CC295;             /* ✅ 테두리도 활성색 */
-   box-shadow: 0 0px 20px rgba(44, 194, 149, 0.25);
- }
+  color: black; /* ✅ 활성 시 글자 흰색 */
+  border-color: #2CC295; /* ✅ 테두리도 활성색 */
+  box-shadow: 0 0px 20px rgba(44, 194, 149, 0.25);
+}
 
- .login-button.active::before {
-   transform: scale(8);               /* ✅ 색이 퍼져서 채워짐 */
- }
+.login-button.active::before {
+  transform: scale(8); /* ✅ 색이 퍼져서 채워짐 */
+}
 
 .login-button:disabled {
   cursor: not-allowed;
-  opacity: 1;                    /* ✅ 투명도 대신 색으로 비활성 표현 */
+  opacity: 1; /* ✅ 투명도 대신 색으로 비활성 표현 */
   border-color: #cfcfcf;
-  color: #111;
+  color: white;
   box-shadow: none;
 }
 
@@ -105,7 +132,6 @@
 .login-button:active {
   transform: scale(1);
 }
-
 
 /* 에러 */
 .login-error {
@@ -129,14 +155,14 @@
   border: none;
   padding: 6px 6px;
   font-size: 12px;
-  color: #111;
+  color: white;
   cursor: pointer;
 }
 
 .link-divider {
   width: 1px;
   height: 12px;
-  background: #111;
+  background: white;
   opacity: 0.6;
 }
 
