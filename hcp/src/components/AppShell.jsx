@@ -6,7 +6,6 @@ import "../styles/layout/AppShell.css";
 import Header from "./Header";
 import Menu from "./Menu";
 
-// ✅ 네가 가진 SVG 경로
 import nav1 from "../assets/nav/nav1.svg";
 import nav2 from "../assets/nav/nav2.svg";
 import nav3 from "../assets/nav/nav3.svg";
@@ -123,8 +122,10 @@ export default function AppShell() {
           onMenu={() => console.log("menu click")}
         />
 
-        {/* ✅ 여기만 페이지별로 교체됨 */}
-        <Outlet />
+        {/* ✅ Outlet을 고정 높이 영역(shell-main) 안에 가둠 */}
+        <main className="shell-main">
+          <Outlet />
+        </main>
       </div>
 
       {/* ✅ 메뉴는 항상 유지 */}

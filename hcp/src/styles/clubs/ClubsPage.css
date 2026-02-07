@@ -1,0 +1,173 @@
+/* ✅ 페이지 레이아웃: 상단 유저정보 고정 + 아래 스크롤 */
+.clubs-page {
+  height: 100%;
+  padding: clamp(1rem, 4vw, 1.25rem);
+  display: flex;
+  flex-direction: column;
+
+  /* 중요: 부모가 flex/고정높이일 때 내부 스크롤 성립 */
+  min-height: 0;
+}
+
+/* 유저 정보(스크롤 X) */
+.clubs-user {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 3vw, 1rem);
+  margin-top: clamp(0.25rem, 1vw, 0.5rem);
+  margin-bottom: clamp(1rem, 4vw, 1.25rem);
+}
+
+.clubs-user__avatar {
+  width: clamp(2.4rem, 9vw, 3rem);
+  height: clamp(2.4rem, 9vw, 3rem);
+  border-radius: 999rem;
+  object-fit: cover;
+  border: 0.125rem solid rgba(255, 255, 255, 0.25);
+}
+
+.clubs-user__avatar--fallback {
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 900;
+  font-size: clamp(0.95rem, 3.6vw, 1.1rem);
+}
+
+.clubs-user__meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.clubs-user__dept {
+  font-size: clamp(0.75rem, 2.8vw, 0.9rem);
+  color: rgba(44, 194, 149, 0.92);
+  font-weight: 800;
+}
+
+.clubs-user__nick {
+  margin-top: clamp(0.15rem, 0.6vw, 0.25rem);
+  font-size: clamp(1.05rem, 4.6vw, 1.35rem);
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* ✅ 카드 영역만 스크롤 */
+.clubs-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+
+  padding-bottom: calc(env(safe-area-inset-bottom) + clamp(1rem, 4vw, 1.5rem));
+
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+/* 섹션 */
+.clubs-section {
+  margin-top: clamp(1rem, 4vw, 1.25rem);
+}
+
+.clubs-section__title {
+  margin-bottom: clamp(0.6rem, 2.5vw, 0.85rem);
+  font-size: clamp(0.85rem, 3.2vw, 1rem);
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* 섹션 내 동아리 0개 */
+.clubs-section__empty {
+  padding: clamp(1rem, 4vw, 1.25rem);
+  border-radius: clamp(0.9rem, 3vw, 1.1rem);
+  background: rgba(255, 255, 255, 0.10);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(clamp(0.5rem, 2vw, 0.8rem));
+  -webkit-backdrop-filter: blur(clamp(0.5rem, 2vw, 0.8rem));
+  font-weight: 800;
+}
+
+/* 전체 동아리 0개 */
+.clubs-empty {
+  padding: clamp(1rem, 4vw, 1.25rem);
+  border-radius: clamp(1rem, 3.5vw, 1.2rem);
+  background: rgba(255, 255, 255, 0.10);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(clamp(0.5rem, 2vw, 0.8rem));
+  -webkit-backdrop-filter: blur(clamp(0.5rem, 2vw, 0.8rem));
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 900;
+  text-align: center;
+}
+
+/* ✅ 카드 그리드: 2열 */
+.clubs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.75rem, 3vw, 1rem);
+}
+
+/* 카드 */
+.club-card {
+  border-radius: clamp(0.9rem, 3vw, 1.1rem);
+  background: rgba(255, 255, 255, 0.12);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(clamp(0.5rem, 2vw, 0.8rem));
+  -webkit-backdrop-filter: blur(clamp(0.5rem, 2vw, 0.8rem));
+  overflow: hidden;
+}
+
+/* ✅ 사진 틀 통일 + 넘치면 자르기 */
+.club-card__media {
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  min-height: clamp(6.5rem, 22vw, 8.2rem);
+
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.18);
+  display: grid;
+  place-items: center;
+}
+
+.club-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.club-card__placeholder {
+  padding: clamp(0.5rem, 2vw, 0.75rem);
+  text-align: center;
+  font-size: clamp(0.75rem, 2.8vw, 0.9rem);
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.club-card__body {
+  padding: clamp(0.75rem, 3vw, 1rem);
+}
+
+.club-card__name {
+  font-size: clamp(0.95rem, 3.6vw, 1.1rem);
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.club-card__desc {
+  margin-top: clamp(0.35rem, 1.2vw, 0.5rem);
+  font-size: clamp(0.75rem, 2.8vw, 0.9rem);
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.35;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

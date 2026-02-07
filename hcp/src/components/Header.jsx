@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../styles/components/Header.css";
+import "../styles/Header.css";
 
 import SearchIcon from "../assets/header/search.svg";
 import Ham1 from "../assets/header/ham1.svg";

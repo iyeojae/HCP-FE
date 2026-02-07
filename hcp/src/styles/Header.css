@@ -19,8 +19,8 @@
   background: transparent;
   cursor: pointer;
 
-  width: clamp(2.25rem, 9vw, 2.75rem);
-  height: clamp(2.25rem, 9vw, 2.75rem);
+  width: clamp(2.1rem, 8.2vw, 2.6rem);
+  height: clamp(2.1rem, 8.2vw, 2.6rem);
   display: grid;
   place-items: center;
 
@@ -37,8 +37,8 @@
 }
 
 .app-header__iconImg {
-  width: clamp(1.25rem, 5vw, 1.6rem);
-  height: clamp(1.25rem, 5vw, 1.6rem);
+  width: clamp(1.1rem, 4.3vw, 1.35rem);
+  height: clamp(1.1rem, 4.3vw, 1.35rem);
   display: block;
 }
 
@@ -51,8 +51,8 @@
 }
 
 .hamburger__line {
-  width: clamp(1.2rem, 5.2vw, 1.55rem);
-  height: clamp(0.12rem, 0.45vw, 0.16rem);
+  width: clamp(1.05rem, 4.6vw, 1.4rem);
+  height: clamp(0.1rem, 0.38vw, 0.14rem);
   background: rgba(255, 255, 255, 0.92);
   border-radius: 999rem;
 }

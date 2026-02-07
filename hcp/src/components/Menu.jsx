@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "../styles/components/Menu.css";
+import "../styles/Menu.css";
 
 export default function Menu({ items = [] }) {
   const navigate = useNavigate();

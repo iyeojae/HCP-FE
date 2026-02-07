@@ -15,6 +15,7 @@ import AppShell from "../components/AppShell";
 
 // ✅ 중요 페이지(껍데기 안에 들어갈 페이지들)
 import MainPage from "../pages/main/MainPage";
+import ClubsPage from "../pages/clubs/ClubsPage"; // ✅ 추가
 
 // ✅ 임시 페이지(파일 추가 없이 Router에서만 임시로 처리)
 function TempPage({ title }) {
@@ -56,7 +57,7 @@ export default function Router() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
             <Route path="/main" element={<MainPage />} />
-            <Route path="/clubs" element={<TempPage title="동아리" />} />
+            <Route path="/clubs" element={<ClubsPage />} /> {/* ✅ 교체 */}
             <Route path="/mypage" element={<TempPage title="마이페이지" />} />
           </Route>
         </Route>
