@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/splash/SplashPage.css";
 
 // 실제 로고 파일이 준비되면 아래를 사용하세요.
-// import Logo from "../../assets/logo.svg";
+import Logo from "../../assets/logo.svg";
 
 export default function SplashPage() {
   const navigate = useNavigate();
@@ -25,8 +25,7 @@ export default function SplashPage() {
       <div className="splash-center">
         <div className="logo-circle" aria-label="logo">
           {/* 로고 이미지 사용 시 */}
-          {/* <img src={Logo} alt="logo" className="logo-img" /> */}
-          <span className="logo-text">logo</span>
+          <img src={Logo} alt="logo" className="logo-img" />
         </div>
       </div>
     </div>

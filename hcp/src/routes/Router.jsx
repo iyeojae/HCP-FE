@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
 import MobileAppLayout from "../components/layout/MobileAppLayout";
@@ -13,11 +13,9 @@ import SignupStep2Page from "../pages/auth/SignupStep2Page";
 import ProtectedRoute from "./ProtectedRoute";
 import AppShell from "../components/AppShell";
 
-// ✅ 중요 페이지(껍데기 안에 들어갈 페이지들)
 import MainPage from "../pages/main/MainPage";
-import ClubsPage from "../pages/clubs/ClubsPage"; // ✅ 추가
+import ClubsPage from "../pages/clubs/ClubsPage";
 
-// ✅ 임시 페이지(파일 추가 없이 Router에서만 임시로 처리)
 function TempPage({ title }) {
   return (
     <div style={{ padding: "18px 20px" }}>
@@ -47,27 +45,29 @@ export default function Router() {
 
   return (
     <MobileAppLayout>
-      {/* 1) 바닥(일반 라우트 + 보호 라우트) */}
       <Routes location={baseLocation || location}>
-        {/* Public */}
-        <Route path="/" element={<SplashPage />} />
+        {/* ✅ 시작 화면: / , /login 둘 다 */}
+        <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
 
-        {/* ✅ Protected App 영역 (배경/헤더/메뉴 고정) */}
+        {/* (원하면 스플래시는 별도 유지) */}
+        <Route path="/splash" element={<SplashPage />} />
+
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
             <Route path="/main" element={<MainPage />} />
-            <Route path="/clubs" element={<ClubsPage />} /> {/* ✅ 교체 */}
+            <Route path="/clubs" element={<ClubsPage />} />
             <Route path="/mypage" element={<TempPage title="마이페이지" />} />
           </Route>
         </Route>
 
-        {/* signup (public) */}
         <Route path="/signup" element={<SignupVerifyPage />} />
         <Route path="/signup/step2" element={<SignupStep2Page />} />
+
+        {/* 기타 잘못된 경로는 시작 화면으로 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {/* 2) Step1 정적 오버레이 유지 */}
       {prevOverlayLocation ? (
         <Routes
           location={prevOverlayLocation}
@@ -84,7 +84,6 @@ export default function Router() {
         </Routes>
       ) : null}
 
-      {/* 3) 현재 오버레이(애니메이션) */}
       <AnimatePresence initial={false}>
         {baseLocation ? (
           <Routes location={location} key={`cur-${location.key}`}>
