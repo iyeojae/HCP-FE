@@ -46,13 +46,16 @@ export default function Router() {
   return (
     <MobileAppLayout>
       <Routes location={baseLocation || location}>
-        {/* ✅ 시작 화면: / , /login 둘 다 */}
-        <Route path="/" element={<LoginPage />} />
+        {/* ✅ 첫 진입 스플래시 유지 */}
+        <Route path="/" element={<SplashPage />} />
+
+        {/* ✅ 너가 만든 "시작하기" 화면(현재 LoginPage)을 /login에 유지 */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* (원하면 스플래시는 별도 유지) */}
+        {/* ✅ (선택) 스플래시를 별도 주소로도 접근 가능하게 두고 싶다면 유지 */}
         <Route path="/splash" element={<SplashPage />} />
 
+        {/* ✅ Protected App 영역 */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
             <Route path="/main" element={<MainPage />} />
@@ -61,13 +64,15 @@ export default function Router() {
           </Route>
         </Route>
 
+        {/* signup (public) */}
         <Route path="/signup" element={<SignupVerifyPage />} />
         <Route path="/signup/step2" element={<SignupStep2Page />} />
 
-        {/* 기타 잘못된 경로는 시작 화면으로 */}
+        {/* 기타 잘못된 경로는 스플래시로 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
+      {/* 2) Step1 정적 오버레이 유지 */}
       {prevOverlayLocation ? (
         <Routes
           location={prevOverlayLocation}
@@ -84,6 +89,7 @@ export default function Router() {
         </Routes>
       ) : null}
 
+      {/* 3) 현재 오버레이(애니메이션) */}
       <AnimatePresence initial={false}>
         {baseLocation ? (
           <Routes location={location} key={`cur-${location.key}`}>
