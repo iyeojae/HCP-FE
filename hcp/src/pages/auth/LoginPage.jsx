@@ -7,7 +7,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const canvasRef = useRef(null);
 
-  // ✅ AppShell과 동일 별 로직(산 없음)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
