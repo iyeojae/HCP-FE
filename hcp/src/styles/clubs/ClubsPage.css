@@ -4,8 +4,6 @@
   padding: clamp(1rem, 4vw, 1.25rem);
   display: flex;
   flex-direction: column;
-
-  /* 중요: 부모가 flex/고정높이일 때 내부 스크롤 성립 */
   min-height: 0;
 }
 
@@ -67,7 +65,6 @@
   -webkit-overflow-scrolling: touch;
 }
 
-
 /* 섹션 */
 .clubs-section {
   margin-top: clamp(1rem, 4vw, 1.25rem);
@@ -80,23 +77,11 @@
   color: rgba(255, 255, 255, 0.92);
 }
 
-/* 섹션 내 동아리 0개 */
-.clubs-section__empty {
-  padding: clamp(1rem, 4vw, 1.25rem);
-  border-radius: clamp(0.9rem, 3vw, 1.1rem);
-  background: rgba(255, 255, 255, 0.10);
-  border: 0.0625rem solid rgba(255, 255, 255, 0.16);
-  color: rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(clamp(0.5rem, 2vw, 0.8rem));
-  -webkit-backdrop-filter: blur(clamp(0.5rem, 2vw, 0.8rem));
-  font-weight: 800;
-}
-
 /* 전체 동아리 0개 */
 .clubs-empty {
   padding: clamp(1rem, 4vw, 1.25rem);
   border-radius: clamp(1rem, 3.5vw, 1.2rem);
-  background: rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.1);
   border: 0.0625rem solid rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(clamp(0.5rem, 2vw, 0.8rem));
   -webkit-backdrop-filter: blur(clamp(0.5rem, 2vw, 0.8rem));

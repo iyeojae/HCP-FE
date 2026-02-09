@@ -1,7 +1,7 @@
 /* ✅ MainPage는 AppShell 위에 올라가는 "내용"만 담당 */
 
 .main-page-content {
-  padding: 18px 20px 0;
+  padding: clamp(1rem, 4.2vw, 1.125rem) clamp(1.1rem, 4.8vw, 1.25rem) 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9,15 +9,25 @@
 
 /* ✅ 중앙 반투명 사각형 영역 */
 .main-center-panel {
-  width: min(360px, calc(100% - 40px));
-  height: 50dvh;
-  border-radius: 18px;
+  width: 100%;
+  max-width: clamp(18rem, 86vw, 22.5rem);
+  height: clamp(14rem, 50dvh, 22rem);
+
+  border-radius: clamp(1rem, 4vw, 1.125rem);
 
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.18);
 
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(clamp(0.65rem, 2.6vw, 0.9rem));
+  -webkit-backdrop-filter: blur(clamp(0.65rem, 2.6vw, 0.9rem));
 
   opacity: 0.6;
+  transition: filter 200ms ease, opacity 200ms ease, transform 200ms ease;
+}
+
+/* ✅ 모달 떠 있을 때: "박스만" 더 흐릿하게 */
+.main-center-panel.is-blurred {
+  filter: blur(clamp(0.25rem, 1.2vw, 0.45rem));
+  opacity: 0.35;
+  transform: scale(0.995);
 }

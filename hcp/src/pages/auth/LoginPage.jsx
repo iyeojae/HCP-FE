@@ -88,11 +88,9 @@ export default function LoginPage() {
       <div className="login-content">
         <div className="login-hero" aria-label="시작 화면">
           {/* ✅ 로고 영역(원형 프레임) */}
-          <div className="login-logoRing" aria-label="로고">
-            <div className="login-logoInner">
+          
               <img src={LogoImg} alt="서비스 로고" className="login-logoImg" />
-            </div>
-          </div>
+            
 
           <div className="login-copy">
             <h1 className="login-title">원하는 동아리에 지금 지원해보세요</h1>
