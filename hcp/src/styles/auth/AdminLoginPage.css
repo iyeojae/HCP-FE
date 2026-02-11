@@ -1,17 +1,64 @@
 .admin-login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  overflow: hidden;
+
+  background: linear-gradient(
+    180deg,
+    #4D2A65 13%,
+    #1C181E 40%,
+    #161620 58%,
+    #0E1324 69%
+  );
+}
+
+/* ✅ 별 */
+.admin-login-stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
   height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ✅ 산 */
+.admin-login-mountains {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.admin-login-mountains__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ✅ 콘텐츠는 제일 위 */
+.admin-login-content {
+  position: relative;
+  z-index: 2;
+
+  min-height: 100vh;
+  min-height: 103.5dvh;
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 0;
 
   padding-top: calc(env(safe-area-inset-top) + clamp(2.2rem, 10vh, 4rem));
   padding-left: clamp(1.25rem, 6vw, 1.75rem);
   padding-right: clamp(1.25rem, 6vw, 1.75rem);
-  padding-bottom: calc(env(safe-area-inset-bottom) + clamp(1.3rem, 5vh, 2rem));
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* 상단 아이콘 */
+/* 상단 아이콘 영역 */
 .admin-login-topIcons {
   width: 100%;
   display: flex;
@@ -20,6 +67,7 @@
   opacity: 0.95;
 }
 
+/* ✅ 요청대로 아이콘 크기 업 */
 .admin-login-topIcons__dot {
   width: clamp(3.4rem, 13vw, 4.3rem);
   height: clamp(3.4rem, 13vw, 4.3rem);
@@ -66,7 +114,7 @@
   color: rgba(255, 255, 255, 0.80);
 }
 
-/* 오른쪽 작은 버튼 */
+/* 오른쪽 작은 버튼(인증번호 전송) */
 .admin-field__ghostBtn {
   appearance: none;
   border: 0.0625rem solid rgba(255, 255, 255, 0.22);
@@ -85,7 +133,7 @@
   transform: scale(0.985);
 }
 
-/* 눈 버튼(SVG) */
+/* ✅ 눈 버튼(SVG) */
 .admin-field__eyeBtn {
   appearance: none;
   border: none;
@@ -170,6 +218,7 @@
 /* 아래 뒤로가기 */
 .admin-login-back {
   margin-top: auto;
+  margin-bottom: 3rem;
   appearance: none;
   border: none;
   background: transparent;

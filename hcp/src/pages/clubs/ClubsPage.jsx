@@ -1,5 +1,6 @@
+// src/pages/clubs/ClubsPage.jsx
 import React, { useMemo /*, useEffect, useState */ } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import "../../styles/clubs/ClubsPage.css";
 import LogoImg from "../../assets/logo2.svg";
 
@@ -240,7 +241,9 @@ export default function ClubsPage() {
 
     return dummyAllClubs.filter((c) => {
       const okStatus = effectiveStatus ? c.status === effectiveStatus : true;
-      const okKeyword = hasKeyword ? c.name.toLowerCase().includes(kwLower) : true;
+      const okKeyword = hasKeyword
+        ? c.name.toLowerCase().includes(kwLower)
+        : true;
       return okStatus && okKeyword;
     });
   }, [dummyAllClubs, effectiveStatus, q]);
@@ -276,7 +279,14 @@ export default function ClubsPage() {
     <div className="clubs-page">
       {/* ✅ 상단 표시: 유저 → 서비스 로고로 통일 */}
       <section className="clubs-user" aria-label="서비스 정보">
-        <img className="clubs-user__avatar" src={LogoImg} alt="HCP 로고" />
+        {/* ✅ 로고 클릭 시 시작 화면으로 이동 */}
+        <Link
+          to="/"
+          className="clubs-user__avatarLink"
+          aria-label="시작 화면으로 이동"
+        >
+          <img className="clubs-user__avatar" src={LogoImg} alt="HCP 로고" />
+        </Link>
 
         <div className="clubs-user__meta">
           <div className="clubs-user__dept clubs-user__dept--brand">
@@ -306,7 +316,10 @@ export default function ClubsPage() {
                           loading="lazy"
                         />
                       ) : (
-                        <div className="club-card__placeholder" aria-label="대표사진 없음">
+                        <div
+                          className="club-card__placeholder"
+                          aria-label="대표사진 없음"
+                        >
                           사진을 준비중입니다.
                         </div>
                       )}
