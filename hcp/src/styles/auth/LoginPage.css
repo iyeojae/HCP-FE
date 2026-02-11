@@ -83,22 +83,22 @@
 
 /* ✅ 버튼은 아래쪽 */
 .login-cta {
-  margin-top: auto;
+  margin-top: 7rem;
   display: flex;
   justify-content: center;
 }
 
 /* ✅ 시작하기 버튼 */
 .start-button {
-  width: min(26rem, 88%);
-  height: clamp(3.1rem, 7.2vh, 3.5rem);
+  width: min(15rem, 88%);
+  height: clamp(3.1rem, 5.2vh, 3.5rem);
   border: none;
   border-radius: 999rem;
   cursor: pointer;
 
   color: rgba(255, 255, 255, 0.95);
   font-weight: 800;
-  font-size: clamp(0.95rem, 3.8vw, 1.05rem);
+  font-size: clamp(0.85rem, 3.8vw, 0.05rem);
 
   background: rgba(92, 156, 145, 0.95);
     
@@ -116,4 +116,40 @@
 
 .start-button:hover {
   filter: brightness(1.04);
+}
+
+/* ✅ 우측 하단 관리자 버튼 */
+.login-adminBtn {
+  position: absolute;
+  right: clamp(0.9rem, 3.6vw, 1.2rem);
+  bottom: calc(env(safe-area-inset-bottom) + clamp(0.9rem, 3.6vw, 1.2rem));
+  z-index: 5;
+
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  width: clamp(2.6rem, 10vw, 3.2rem);
+  height: clamp(2.6rem, 10vw, 3.2rem);
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 999rem;
+  transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.login-adminBtn:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.login-adminBtn:active {
+  transform: scale(0.96);
+}
+
+.login-adminIcon {
+  width: clamp(2.45rem, 5.6vw, 1.85rem);
+  height: clamp(3.45rem, 5.6vw, 1.85rem);
+  display: block;
 }

@@ -1,4 +1,4 @@
-/* ✅ 페이지 레이아웃: 상단 유저정보 고정 + 아래 스크롤 */
+/* ✅ 페이지 레이아웃: 상단 고정 + 아래 스크롤 */
 .clubs-page {
   height: 100%;
   padding: clamp(1rem, 4vw, 1.25rem);
@@ -7,7 +7,7 @@
   min-height: 0;
 }
 
-/* 유저 정보(스크롤 X) */
+/* 상단(스크롤 X) */
 .clubs-user {
   flex: 0 0 auto;
   display: flex;
@@ -17,21 +17,10 @@
   margin-bottom: clamp(1rem, 4vw, 1.25rem);
 }
 
+/* 로고(원형 프레임) */
 .clubs-user__avatar {
   width: clamp(2.4rem, 9vw, 3rem);
   height: clamp(2.4rem, 9vw, 3rem);
-  border-radius: 999rem;
-  object-fit: cover;
-  border: 0.125rem solid rgba(255, 255, 255, 0.25);
-}
-
-.clubs-user__avatar--fallback {
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.92);
-  font-weight: 900;
-  font-size: clamp(0.95rem, 3.6vw, 1.1rem);
 }
 
 .clubs-user__meta {
@@ -40,17 +29,19 @@
   line-height: 1.1;
 }
 
+/* ✅ Hanseo Club Portal 텍스트 색상 */
 .clubs-user__dept {
   font-size: clamp(0.75rem, 2.8vw, 0.9rem);
-  color: rgba(44, 194, 149, 0.92);
+  color: #51A488;
   font-weight: 800;
 }
 
+/* ✅ HCP 텍스트 색상 */
 .clubs-user__nick {
   margin-top: clamp(0.15rem, 0.6vw, 0.25rem);
   font-size: clamp(1.05rem, 4.6vw, 1.35rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.92);
+  color: #117754;
 }
 
 /* ✅ 카드 영역만 스크롤 */

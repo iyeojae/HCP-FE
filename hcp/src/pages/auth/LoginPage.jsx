@@ -1,7 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/auth/LoginPage.css";
+
 import LogoImg from "../../assets/logo2.svg";
+
+// ✅ 너가 나중에 넣을 관리자 SVG (경로만 맞춰서 교체하면 됨)
+import AdminIcon from "../../assets/auth/admin.svg";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -81,16 +85,18 @@ export default function LoginPage() {
     navigate("/main", { replace: true });
   };
 
+  // ✅ 관리자 로그인 이동
+  const onAdminLogin = () => {
+    navigate("/admin/login");
+  };
+
   return (
     <div className="login-page">
       <canvas ref={canvasRef} className="login-stars" aria-hidden="true" />
 
       <div className="login-content">
         <div className="login-hero" aria-label="시작 화면">
-          {/* ✅ 로고 영역(원형 프레임) */}
-          
-              <img src={LogoImg} alt="서비스 로고" className="login-logoImg" />
-            
+          <img src={LogoImg} alt="서비스 로고" className="login-logoImg" />
 
           <div className="login-copy">
             <h1 className="login-title">원하는 동아리에 지금 지원해보세요</h1>
@@ -104,6 +110,16 @@ export default function LoginPage() {
           </button>
         </div>
       </div>
+
+      {/* ✅ 우측 하단 관리자 진입 SVG 버튼 */}
+      <button
+        type="button"
+        className="login-adminBtn"
+        onClick={onAdminLogin}
+        aria-label="관리자 로그인"
+      >
+        <img src={AdminIcon} alt="" aria-hidden="true" className="login-adminIcon" />
+      </button>
     </div>
   );
 }

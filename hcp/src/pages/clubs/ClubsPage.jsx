@@ -1,6 +1,7 @@
 import React, { useMemo /*, useEffect, useState */ } from "react";
 import { useSearchParams } from "react-router-dom";
 import "../../styles/clubs/ClubsPage.css";
+import LogoImg from "../../assets/logo2.svg";
 
 /*
 ✅ [백엔드 연동 예정] (배포 전 → 주석)
@@ -80,21 +81,10 @@ export default function ClubsPage() {
     return allowed.has(rawStatus) ? rawStatus : "";
   }, [rawStatus]);
 
-  // ✅ 핵심 규칙:
-  // q가 있으면 status는 무조건 무시(전체에서 검색)
+  // ✅ 핵심 규칙: q가 있으면 status는 무조건 무시(전체에서 검색)
   const effectiveStatus = useMemo(() => {
     return q ? "" : status;
   }, [q, status]);
-
-  // ✅ 더미 유저(나중에 storage/API로 교체)
-  const user = useMemo(
-    () => ({
-      department: "물리치료학과",
-      nickname: "부침개 최고야",
-      avatarUrl: "",
-    }),
-    []
-  );
 
   /*
   // =========================
@@ -104,7 +94,6 @@ export default function ClubsPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // coverUrl이 "/uploads/..." 같은 상대경로로 올 때
   const API_ORIGIN = "http://localhost:8080";
   const toCoverUrl = (coverUrl) => {
     if (!coverUrl) return "";
@@ -126,9 +115,7 @@ export default function ClubsPage() {
         if (q) params.q = q;
         else if (status) params.status = status;
 
-        // ✅ params가 비어있으면 "/common/clubs" (모든 동아리)
         const res = await api.get("/common/clubs", { params });
-
         const arr = Array.isArray(res?.data) ? res.data : [];
 
         const mapped = arr
@@ -142,7 +129,6 @@ export default function ClubsPage() {
               imageUrl: toCoverUrl(c.coverUrl),
             })),
           }))
-          // ✅ 결과가 없는 카테고리는 화면에서 제외(UX)
           .filter((s) => (s.clubs || []).length > 0);
 
         setSections(mapped);
@@ -166,7 +152,6 @@ export default function ClubsPage() {
   // =========================
   const dummyAllClubs = useMemo(
     () => [
-      // ACADEMIC
       {
         id: 1,
         category: "ACADEMIC",
@@ -193,8 +178,6 @@ export default function ClubsPage() {
         summary: "모집 종료 · 주 2회 풀이 + 코드리뷰",
         coverUrl: "",
       },
-
-      // PERFORMANCE
       {
         id: 4,
         category: "PERFORMANCE",
@@ -204,8 +187,6 @@ export default function ClubsPage() {
         coverUrl:
           "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1200&q=60",
       },
-
-      // SPORTS
       {
         id: 5,
         category: "SPORTS",
@@ -214,8 +195,6 @@ export default function ClubsPage() {
         summary: "한줄소개",
         coverUrl: "",
       },
-
-      // VOLUNTEER
       {
         id: 6,
         category: "VOLUNTEER",
@@ -224,8 +203,6 @@ export default function ClubsPage() {
         summary: "한줄소개",
         coverUrl: "",
       },
-
-      // ART
       {
         id: 7,
         category: "ART",
@@ -235,8 +212,6 @@ export default function ClubsPage() {
         coverUrl:
           "https://images.unsplash.com/photo-1541961017774-22349e4a1262?auto=format&fit=crop&w=1200&q=60",
       },
-
-      // HOBBY
       {
         id: 8,
         category: "HOBBY",
@@ -245,8 +220,6 @@ export default function ClubsPage() {
         summary: "한줄소개",
         coverUrl: "",
       },
-
-      // RELIGION
       {
         id: 9,
         category: "RELIGION",
@@ -259,13 +232,10 @@ export default function ClubsPage() {
     []
   );
 
-  // ✅ 더미 기준 필터(요구사항 반영):
-  // - q가 있으면 status 무시(전체에서 name 검색)
-  // - q가 없으면 status 필터 적용
+  // ✅ 더미 기준 필터(요구사항 반영)
   const filteredClubs = useMemo(() => {
     const keyword = q.trim();
     const hasKeyword = !!keyword;
-
     const kwLower = keyword.toLowerCase();
 
     return dummyAllClubs.filter((c) => {
@@ -275,7 +245,7 @@ export default function ClubsPage() {
     });
   }, [dummyAllClubs, effectiveStatus, q]);
 
-  // ✅ 섹션으로 그룹핑(결과 없는 섹션은 숨김)
+  // ✅ 섹션으로 그룹핑
   const sections = useMemo(() => {
     const byCat = new Map();
     filteredClubs.forEach((c) => {
@@ -302,33 +272,20 @@ export default function ClubsPage() {
 
   const totalClubs = filteredClubs.length;
 
-  const initial = useMemo(() => {
-    const n = (user.nickname || "").trim();
-    return n ? n[0] : "U";
-  }, [user.nickname]);
-
   return (
     <div className="clubs-page">
-      {/* ✅ 유저 정보(고정) */}
-      <section className="clubs-user" aria-label="사용자 정보">
-        {user.avatarUrl ? (
-          <img className="clubs-user__avatar" src={user.avatarUrl} alt="프로필" />
-        ) : (
-          <div
-            className="clubs-user__avatar clubs-user__avatar--fallback"
-            aria-hidden="true"
-          >
-            {initial}
-          </div>
-        )}
+      {/* ✅ 상단 표시: 유저 → 서비스 로고로 통일 */}
+      <section className="clubs-user" aria-label="서비스 정보">
+        <img className="clubs-user__avatar" src={LogoImg} alt="HCP 로고" />
 
         <div className="clubs-user__meta">
-          <div className="clubs-user__dept">{user.department}</div>
-          <div className="clubs-user__nick">{user.nickname}</div>
+          <div className="clubs-user__dept clubs-user__dept--brand">
+            Hanseo Club Portal
+          </div>
+          <div className="clubs-user__nick clubs-user__nick--brand">HCP</div>
         </div>
       </section>
 
-      {/* ✅ 결과 0개면: 상자 없이 문구만 */}
       {totalClubs === 0 ? (
         <div className="clubs-empty">서비스 준비중입니다.</div>
       ) : (
@@ -349,10 +306,7 @@ export default function ClubsPage() {
                           loading="lazy"
                         />
                       ) : (
-                        <div
-                          className="club-card__placeholder"
-                          aria-label="대표사진 없음"
-                        >
+                        <div className="club-card__placeholder" aria-label="대표사진 없음">
                           사진을 준비중입니다.
                         </div>
                       )}
