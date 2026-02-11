@@ -1,6 +1,5 @@
-// src/components/AppShell.jsx
-import React, { useEffect, useRef } from "react";
-import { Outlet } from "react-router-dom";
+import React, { useEffect, useMemo, useRef } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import "../styles/layout/AppShell.css";
 
 import Header from "./Header";
@@ -10,8 +9,25 @@ import nav1 from "../assets/nav/nav1.svg";
 import nav2 from "../assets/nav/nav2.svg";
 import nav3 from "../assets/nav/nav3.svg";
 
-export default function AppShell() {
+export default function AppShell({ showHeader = true, showMenu = true }) {
   const canvasRef = useRef(null);
+  const location = useLocation();
+
+  // ✅ 로그인 후 role/token이 바뀌면 메뉴가 바로 반영되도록 location 변화에 반응
+  const isAdmin = useMemo(() => {
+    const role = (localStorage.getItem("role") || "").toUpperCase().trim();
+    const token = localStorage.getItem("accessToken");
+    return role === "ADMIN" && !!token;
+  }, [location.key]);
+
+  const menuItems = useMemo(() => {
+    const items = [
+      { to: "/main", iconSrc: nav1, label: "메인" },
+      { to: "/clubs", iconSrc: nav2, label: "동아리" },
+    ];
+    if (isAdmin) items.push({ to: "/mypage", iconSrc: nav3, label: "마이페이지" });
+    return items;
+  }, [isAdmin]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -20,7 +36,6 @@ export default function AppShell() {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    // 안정적인 랜덤(리사이즈마다 같은 느낌 유지)
     const mulberry32 = (seed) => () => {
       let t = (seed += 0x6d2b79f5);
       t = Math.imul(t ^ (t >>> 15), t | 1);
@@ -44,7 +59,6 @@ export default function AppShell() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, cssW, cssH);
 
-      // 별은 상단 위주로(산 영역은 비워두기)
       const starAreaH = cssH * 0.72;
       const density = 1 / 9000;
       const count = Math.max(40, Math.floor(cssW * starAreaH * density));
@@ -63,7 +77,6 @@ export default function AppShell() {
         ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // 가끔 밝은 별 포인트
         if (r() > 0.985) {
           ctx.beginPath();
           ctx.fillStyle = `rgba(255,255,255,0.95)`;
@@ -76,7 +89,7 @@ export default function AppShell() {
     draw();
 
     const ro = new ResizeObserver(() => draw());
-    ro.observe(canvas.parentElement);
+    if (canvas.parentElement) ro.observe(canvas.parentElement);
 
     window.addEventListener("orientationchange", draw);
 
@@ -87,17 +100,11 @@ export default function AppShell() {
   }, []);
 
   return (
-    <div className="app-shell">
-      {/* ✅ 별(캔버스) */}
+    <div className={`app-shell ${showMenu ? "" : "app-shell--noMenu"}`}>
       <canvas ref={canvasRef} className="shell-stars" aria-hidden="true" />
 
-      {/* ✅ 산 실루엣 */}
       <div className="shell-mountains" aria-hidden="true">
-        <svg
-          className="shell-mountains__svg"
-          viewBox="0 0 430 932"
-          preserveAspectRatio="none"
-        >
+        <svg className="shell-mountains__svg" viewBox="0 0 430 932" preserveAspectRatio="none">
           <path
             d="M0,690 C60,640 120,645 175,690 C230,735 290,775 430,720 L430,932 L0,932 Z"
             fill="#1C2B2A"
@@ -115,27 +122,15 @@ export default function AppShell() {
         </svg>
       </div>
 
-      {/* ✅ 컨텐츠 레이어: 헤더 + 페이지 내용(Outlet) */}
       <div className="shell-content">
-        <Header
-          onSearch={() => console.log("search click")}
-          onMenu={() => console.log("menu click")}
-        />
+        {showHeader ? <Header /> : null}
 
-        {/* ✅ Outlet을 고정 높이 영역(shell-main) 안에 가둠 */}
         <main className="shell-main">
           <Outlet />
         </main>
       </div>
 
-      {/* ✅ 메뉴는 항상 유지 */}
-      <Menu
-        items={[
-          { to: "/main", iconSrc: nav1, label: "메인" },
-          { to: "/clubs", iconSrc: nav2, label: "동아리" },
-          { to: "/mypage", iconSrc: nav3, label: "마이페이지" },
-        ]}
-      />
+      {showMenu ? <Menu items={menuItems} /> : null}
     </div>
   );
 }

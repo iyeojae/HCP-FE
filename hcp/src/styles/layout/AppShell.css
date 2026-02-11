@@ -62,3 +62,8 @@
   min-height: 0;
   overflow: hidden; /* 페이지가 각자 내부 스크롤을 갖도록 */
 }
+
+/* ✅ 메뉴를 숨긴 화면(관리자 로그인 등)에서는 아래 공간을 비우지 않기 */
+.app-shell--noMenu .shell-content {
+  padding-bottom: env(safe-area-inset-bottom);
+}
