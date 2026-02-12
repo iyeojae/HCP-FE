@@ -1,3 +1,4 @@
+// src/routes/Router.jsx
 import React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
@@ -17,6 +18,9 @@ import AdminRoute from "./AdminRoute";
 
 import MainPage from "../pages/main/MainPage";
 import ClubsPage from "../pages/clubs/ClubsPage";
+
+// ✅ 추가
+import MyPageLocked from "../pages/mypage/MyPageLocked";
 
 function TempPage({ title }) {
   return (
@@ -62,11 +66,14 @@ export default function Router() {
           <Route path="/main" element={<MainPage />} />
           <Route path="/clubs" element={<ClubsPage />} />
 
+          {/* ✅ 잠김 안내 페이지(게스트용) */}
+          <Route path="/mypage/locked" element={<MyPageLocked />} />
+
           {/* ✅ 마이페이지는 ADMIN만 */}
           <Route
             path="/mypage"
             element={
-              <AdminRoute>
+              <AdminRoute guestFallbackPath="/mypage/locked">
                 <TempPage title="마이페이지" />
               </AdminRoute>
             }

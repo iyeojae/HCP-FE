@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { storage } from "../../utils/storage";
 import "../../styles/auth/LoginPage.css";
 
 import LogoImg from "../../assets/logo2.svg";
@@ -82,8 +83,12 @@ export default function LoginPage() {
   }, []);
 
   const onStart = () => {
-    navigate("/main", { replace: true });
-  };
+  storage.clearAuth?.();
+  localStorage.removeItem("role");
+  localStorage.removeItem("loginId");
+  localStorage.removeItem("userId");
+  navigate("/main", { replace: true });
+};
 
   // ✅ 관리자 로그인 이동
   const onAdminLogin = () => {

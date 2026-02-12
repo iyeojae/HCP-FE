@@ -1,3 +1,4 @@
+// src/components/AppShell.jsx
 import React, { useEffect, useMemo, useRef } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import "../styles/layout/AppShell.css";
@@ -21,12 +22,19 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
   }, [location.key]);
 
   const menuItems = useMemo(() => {
-    const items = [
+    return [
       { to: "/main", iconSrc: nav1, label: "메인" },
       { to: "/clubs", iconSrc: nav2, label: "동아리" },
+
+      // ✅ 마이페이지는 항상 노출하되, 관리자 아니면 비활성화 + 안내 문구
+      {
+        to: "/mypage",
+        iconSrc: nav3,
+        label: "마이페이지",
+        disabled: !isAdmin,
+        disabledMessage: "관리자만 접근 가능한 마이페이지입니다.",
+      },
     ];
-    if (isAdmin) items.push({ to: "/mypage", iconSrc: nav3, label: "마이페이지" });
-    return items;
   }, [isAdmin]);
 
   useEffect(() => {
@@ -104,7 +112,11 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
       <canvas ref={canvasRef} className="shell-stars" aria-hidden="true" />
 
       <div className="shell-mountains" aria-hidden="true">
-        <svg className="shell-mountains__svg" viewBox="0 0 430 932" preserveAspectRatio="none">
+        <svg
+          className="shell-mountains__svg"
+          viewBox="0 0 430 932"
+          preserveAspectRatio="none"
+        >
           <path
             d="M0,690 C60,640 120,645 175,690 C230,735 290,775 430,720 L430,932 L0,932 Z"
             fill="#1C2B2A"

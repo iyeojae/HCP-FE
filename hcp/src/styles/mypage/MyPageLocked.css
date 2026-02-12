@@ -1,0 +1,70 @@
+/* src/styles/mypage/MyPageLocked.css */
+
+.mypage-locked{
+  min-block-size: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 3.5vw, 1.6rem);
+}
+
+.mypage-locked__card{
+  inline-size: min(100%, 28rem);
+  border-radius: 1.25rem;
+  padding: clamp(1.1rem, 4vw, 1.6rem);
+  background: rgba(255,255,255,0.12);
+  border: 0.0625rem solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(0.625rem);
+  -webkit-backdrop-filter: blur(0.625rem);
+  color: #fff;
+}
+
+.mypage-locked__icon{
+  font-size: clamp(2rem, 7vw, 2.6rem);
+  line-height: 1;
+  margin-bottom: 0.6rem;
+}
+
+.mypage-locked__title{
+  font-size: clamp(1.05rem, 4.2vw, 1.3rem);
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+}
+
+.mypage-locked__desc{
+  font-size: clamp(0.9rem, 3.6vw, 1rem);
+  opacity: 0.9;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.mypage-locked__actions{
+  display: grid;
+  gap: 0.6rem;
+}
+
+.mypage-locked__btn{
+  inline-size: 100%;
+  border: 0;
+  border-radius: 0.95rem;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mypage-locked__btn--primary{
+  background: rgba(255,255,255,0.92);
+  color: #111;
+}
+
+.mypage-locked__btn--ghost{
+  background: transparent;
+  color: #fff;
+  border: 0.0625rem solid rgba(255,255,255,0.28);
+}
+
+.mypage-locked__btn:disabled{
+  opacity: 0.6;
+  cursor: not-allowed;
+}
