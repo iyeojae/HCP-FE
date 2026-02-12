@@ -19,9 +19,12 @@ import AdminRoute from "./AdminRoute";
 import MainPage from "../pages/main/MainPage";
 import ClubsPage from "../pages/clubs/ClubsPage";
 
-// ✅ 추가
+// ✅ 마이페이지 관련
 import MyPageLocked from "../pages/mypage/MyPageLocked";
 import MyPage from "../pages/mypage/MyPage";
+
+// ✅ 지원자 목록 페이지 추가
+import ApplicantsPage from "../pages/mypage/ApplicantsPage";
 
 function TempPage({ title }) {
   return (
@@ -80,7 +83,7 @@ export default function Router() {
             }
           />
 
-          {/* ✅ 마이페이지 하위(임시) */}
+          {/* ✅ 마이페이지 하위 */}
           <Route
             path="/mypage/intro"
             element={
@@ -89,11 +92,13 @@ export default function Router() {
               </AdminRoute>
             }
           />
+
+          {/* ✅ 지원자 리스트: TempPage → ApplicantsPage로 교체 */}
           <Route
             path="/mypage/applicants"
             element={
               <AdminRoute guestFallbackPath="/mypage/locked">
-                <TempPage title="지원자 리스트" />
+                <ApplicantsPage />
               </AdminRoute>
             }
           />

@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../../styles/mypage/ApplicantsPage.css";
 
 import api from "../../api/axios";
@@ -15,10 +14,10 @@ function formatDate(iso) {
 }
 
 function TopTabs({ value, onChange }) {
-  // ✅ UI만(나중에 동아리별 필터 붙일 자리)
-  const tabs = ["전체", "동아리A", "동아리B", "동아리C"];
+  // ✅ 동아리 1개 고정
+  const tabs = ["멋쟁이 사자"];
   return (
-    <div className="applicants-tabs" role="tablist" aria-label="필터 탭">
+    <div className="applicants-tabs" role="tablist" aria-label="동아리 탭">
       {tabs.map((t) => {
         const active = value === t;
         return (
@@ -39,6 +38,8 @@ function TopTabs({ value, onChange }) {
 }
 
 function ApplicantCard({ item, onClick }) {
+  const tagsText = (item.techStackTags || []).join(" · ");
+
   return (
     <button type="button" className="applicant-card" onClick={onClick}>
       <div className="applicant-card__left" aria-hidden="true">
@@ -53,15 +54,15 @@ function ApplicantCard({ item, onClick }) {
           <div className="applicant-card__date">{formatDate(item.appliedDate)}</div>
         </div>
 
-        <div className="applicant-card__tags" aria-label="기술스택">
-          {(item.techStackTags || []).slice(0, 8).map((tag) => (
-            <span key={tag} className="applicant-tag">
-              {tag}
-            </span>
-          ))}
-        </div>
+        {/* ✅ 태그는 상자 제거 → 그냥 텍스트만 */}
+        {tagsText ? (
+          <div className="applicant-card__tagsText" aria-label="기술스택">
+            {tagsText}
+          </div>
+        ) : null}
       </div>
 
+      {/* ✅ 우측 세로영역 전체를 #D9CBDF */}
       <div className="applicant-card__right" aria-hidden="true">
         <span className="applicant-card__chev">›</span>
       </div>
@@ -70,25 +71,75 @@ function ApplicantCard({ item, onClick }) {
 }
 
 export default function ApplicantsPage() {
-  const navigate = useNavigate();
-
-  const [tab, setTab] = useState("전체");
+  const [tab, setTab] = useState("멋쟁이 사자");
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // ✅ 레이아웃 확인용 더미 데이터
+  const dummyList = useMemo(
+    () => [
+      {
+        applicationId: 1,
+        name: "김형석",
+        department: "항공소프트웨어공학과",
+        appliedDate: "2026-02-10",
+        techStackTags: ["Java", "Spring", "Boot", "JPA", "MySQL"],
+      },
+      {
+        applicationId: 2,
+        name: "홍길동",
+        department: "컴퓨터공학과",
+        appliedDate: "2026-02-11",
+        techStackTags: ["React", "TypeScript", "CSS", "Figma"],
+      },
+      {
+        applicationId: 3,
+        name: "이몽룡",
+        department: "항공전자공학과",
+        appliedDate: "2026-02-12",
+        techStackTags: ["Python", "OpenCV", "YOLO", "Docker"],
+      },
+      {
+        applicationId: 4,
+        name: "성춘향",
+        department: "경영학과",
+        appliedDate: "2026-02-13",
+        techStackTags: ["Notion", "Excel", "PPT", "Communication"],
+      },
+      {
+        applicationId: 5,
+        name: "임꺽정",
+        department: "기계공학과",
+        appliedDate: "2026-02-14",
+        techStackTags: ["C", "C++", "ROS", "Embedded", "Linux", "Git"],
+      },
+    ],
+    []
+  );
+
   useEffect(() => {
-    // ✅ 관리자가 지원자 페이지를 열었다 = 신규 알림 확인 처리(빨간 점 끄기)
+    // ✅ 지원자 페이지 열면 신규 알림 확인 처리(빨간 점 끄기)
     if (storage.setHasNewApplicants) storage.setHasNewApplicants(false);
   }, []);
 
   useEffect(() => {
+    // =========================
+    // ✅ 레이아웃 확인: 더미 데이터 사용
+    // =========================
+    setList(dummyList);
+    setLoading(false);
+    setErrorMsg("");
+
+    /*
+    // =========================
+    // ✅ 백엔드 연동 시 (배포 전 주석 해제)
+    // =========================
     const fetchList = async () => {
       try {
         setLoading(true);
         setErrorMsg("");
 
-        // ✅ baseURL이 ".../api"라면 여기서는 "/clubadmin/..." 만
         const res = await api.get("/clubadmin/applications/summary");
         const arr = Array.isArray(res?.data) ? res.data : [];
         setList(arr);
@@ -105,18 +156,14 @@ export default function ApplicantsPage() {
     };
 
     fetchList();
-  }, []);
+    */
+  }, [dummyList]);
 
-  // ✅ 탭은 지금 UI만 (API에 club 정보가 없어서 실제 필터는 미적용)
-  const filtered = useMemo(() => {
-    if (tab === "전체") return list;
-    // 나중에 item.clubName 같은 필드 생기면 여기서 필터
-    return list;
-  }, [list, tab]);
+  // ✅ 동아리 1개라서 필터 없음(탭은 UI용)
+  const filtered = useMemo(() => list, [list]);
 
   return (
     <div className="applicants-page">
-      {/* 중앙 큰 흰색 테두리 박스 */}
       <section className="applicants-shell" aria-label="지원자 목록">
         <div className="applicants-header">
           <div className="applicants-title">지원자 리스트</div>
@@ -125,6 +172,7 @@ export default function ApplicantsPage() {
 
         <TopTabs value={tab} onChange={setTab} />
 
+        {/* ✅ shell 안에서 이 영역(리스트)만 스크롤 */}
         <div className="applicants-content">
           {loading ? (
             <div className="applicants-state">불러오는 중…</div>
@@ -139,10 +187,8 @@ export default function ApplicantsPage() {
                   key={it.applicationId}
                   item={it}
                   onClick={() => {
-                    // ✅ 나중에 상세 페이지 만들면 여기로 연결
+                    // ✅ 나중에 상세 페이지 만들면 연결
                     // navigate(`/mypage/applicants/${it.applicationId}`);
-                    // 지금은 클릭해도 아무 동작 없게 하고 싶으면 아래 줄 지워도 됨
-                    navigate("/mypage/applicants", { replace: false });
                   }}
                 />
               ))}
