@@ -21,6 +21,7 @@ import ClubsPage from "../pages/clubs/ClubsPage";
 
 // ✅ 추가
 import MyPageLocked from "../pages/mypage/MyPageLocked";
+import MyPage from "../pages/mypage/MyPage";
 
 function TempPage({ title }) {
   return (
@@ -74,7 +75,25 @@ export default function Router() {
             path="/mypage"
             element={
               <AdminRoute guestFallbackPath="/mypage/locked">
-                <TempPage title="마이페이지" />
+                <MyPage />
+              </AdminRoute>
+            }
+          />
+
+          {/* ✅ 마이페이지 하위(임시) */}
+          <Route
+            path="/mypage/intro"
+            element={
+              <AdminRoute guestFallbackPath="/mypage/locked">
+                <TempPage title="소개글 입력" />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/mypage/applicants"
+            element={
+              <AdminRoute guestFallbackPath="/mypage/locked">
+                <TempPage title="지원자 리스트" />
               </AdminRoute>
             }
           />
@@ -89,7 +108,10 @@ export default function Router() {
 
       {/* 2) Step1 정적 오버레이 유지 */}
       {prevOverlayLocation ? (
-        <Routes location={prevOverlayLocation} key={`prev-${prevOverlayLocation.key}`}>
+        <Routes
+          location={prevOverlayLocation}
+          key={`prev-${prevOverlayLocation.key}`}
+        >
           <Route
             path="/signup"
             element={

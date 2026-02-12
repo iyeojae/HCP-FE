@@ -1,6 +1,5 @@
-// src/components/AppShell.jsx
 import React, { useEffect, useMemo, useRef } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import "../styles/layout/AppShell.css";
 
 import Header from "./Header";
@@ -10,23 +9,19 @@ import nav1 from "../assets/nav/nav1.svg";
 import nav2 from "../assets/nav/nav2.svg";
 import nav3 from "../assets/nav/nav3.svg";
 
+import { storage } from "../utils/storage";
+
 export default function AppShell({ showHeader = true, showMenu = true }) {
   const canvasRef = useRef(null);
-  const location = useLocation();
 
-  // ✅ 로그인 후 role/token이 바뀌면 메뉴가 바로 반영되도록 location 변화에 반응
-  const isAdmin = useMemo(() => {
-    const role = (localStorage.getItem("role") || "").toUpperCase().trim();
-    const token = localStorage.getItem("accessToken");
-    return role === "ADMIN" && !!token;
-  }, [location.key]);
+  // ✅ location.key 의존성 필요 없음: 렌더 시점에 그냥 읽기
+  const isAdmin = storage.isAdmin?.() || false;
 
+  // ✅ 메뉴는 isAdmin 값만 의존
   const menuItems = useMemo(() => {
     return [
       { to: "/main", iconSrc: nav1, label: "메인" },
       { to: "/clubs", iconSrc: nav2, label: "동아리" },
-
-      // ✅ 마이페이지는 항상 노출하되, 관리자 아니면 비활성화 + 안내 문구
       {
         to: "/mypage",
         iconSrc: nav3,
@@ -112,11 +107,7 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
       <canvas ref={canvasRef} className="shell-stars" aria-hidden="true" />
 
       <div className="shell-mountains" aria-hidden="true">
-        <svg
-          className="shell-mountains__svg"
-          viewBox="0 0 430 932"
-          preserveAspectRatio="none"
-        >
+        <svg className="shell-mountains__svg" viewBox="0 0 430 932" preserveAspectRatio="none">
           <path
             d="M0,690 C60,640 120,645 175,690 C230,735 290,775 430,720 L430,932 L0,932 Z"
             fill="#1C2B2A"

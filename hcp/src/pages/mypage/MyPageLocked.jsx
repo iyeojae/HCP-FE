@@ -1,25 +1,24 @@
-// src/pages/mypage/MyPageLocked.jsx
-import React, { useMemo } from "react";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../styles/mypage/MyPageLocked.css";
+
+import { storage } from "../../utils/storage";
 
 export default function MyPageLocked() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isAdmin = useMemo(() => {
-    const role = (localStorage.getItem("role") || "").toUpperCase().trim();
-    const token = localStorage.getItem("accessToken");
-    return role === "ADMIN" && !!token;
-  }, [location.key]);
+  const isAdmin = storage.isAdmin?.() || false;
 
-  // ✅ 혹시 admin인데 /mypage/locked로 오면 바로 /mypage로 보내버림
-  if (isAdmin) {
-    navigate("/mypage", { replace: true });
-    return null;
-  }
+  // ✅ 렌더 중 navigate 금지 → useEffect로 이동
+  useEffect(() => {
+    if (isAdmin) navigate("/mypage", { replace: true });
+  }, [isAdmin, navigate]);
 
   const from = location.state?.from;
+
+  // admin이면 위 useEffect가 이동시킬 예정이니, 잠깐 null 처리
+  if (isAdmin) return null;
 
   return (
     <div className="mypage-locked">
