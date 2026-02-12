@@ -14,8 +14,7 @@ function formatDate(iso) {
 }
 
 function TopTabs({ value, onChange }) {
-  // ✅ 동아리 1개 고정
-  const tabs = ["멋쟁이 사자"];
+  const tabs = ["멋쟁이 사자"]; // ✅ 동아리 1개 고정
   return (
     <div className="applicants-tabs" role="tablist" aria-label="동아리 탭">
       {tabs.map((t) => {
@@ -46,6 +45,7 @@ function ApplicantCard({ item, onClick }) {
         <div className="applicant-card__avatar" />
       </div>
 
+      {/* ✅ 본문 텍스트 시작점 통일: body의 padding-left로 기준선 고정 */}
       <div className="applicant-card__body">
         <div className="applicant-card__dept">{item.department || "학과"}</div>
 
@@ -54,7 +54,6 @@ function ApplicantCard({ item, onClick }) {
           <div className="applicant-card__date">{formatDate(item.appliedDate)}</div>
         </div>
 
-        {/* ✅ 태그는 상자 제거 → 그냥 텍스트만 */}
         {tagsText ? (
           <div className="applicant-card__tagsText" aria-label="기술스택">
             {tagsText}
@@ -62,7 +61,6 @@ function ApplicantCard({ item, onClick }) {
         ) : null}
       </div>
 
-      {/* ✅ 우측 세로영역 전체를 #D9CBDF */}
       <div className="applicant-card__right" aria-hidden="true">
         <span className="applicant-card__chev">›</span>
       </div>
@@ -76,70 +74,67 @@ export default function ApplicantsPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // ✅ 레이아웃 확인용 더미 데이터
-  const dummyList = useMemo(
-    () => [
+  // ✅ 더미 데이터 30개(스크롤 테스트용)
+  const dummyList = useMemo(() => {
+    const base = [
       {
-        applicationId: 1,
         name: "김형석",
         department: "항공소프트웨어공학과",
-        appliedDate: "2026-02-10",
         techStackTags: ["Java", "Spring", "Boot", "JPA", "MySQL"],
       },
       {
-        applicationId: 2,
         name: "홍길동",
         department: "컴퓨터공학과",
-        appliedDate: "2026-02-11",
         techStackTags: ["React", "TypeScript", "CSS", "Figma"],
       },
       {
-        applicationId: 3,
         name: "이몽룡",
         department: "항공전자공학과",
-        appliedDate: "2026-02-12",
         techStackTags: ["Python", "OpenCV", "YOLO", "Docker"],
       },
       {
-        applicationId: 4,
         name: "성춘향",
         department: "경영학과",
-        appliedDate: "2026-02-13",
         techStackTags: ["Notion", "Excel", "PPT", "Communication"],
       },
       {
-        applicationId: 5,
         name: "임꺽정",
         department: "기계공학과",
-        appliedDate: "2026-02-14",
         techStackTags: ["C", "C++", "ROS", "Embedded", "Linux", "Git"],
       },
-    ],
-    []
-  );
+    ];
+
+    const out = [];
+    for (let i = 0; i < 30; i++) {
+      const b = base[i % base.length];
+      const day = String(10 + (i % 18)).padStart(2, "0"); // 10~27
+      out.push({
+        applicationId: i + 1,
+        name: `${b.name}${i + 1}`,
+        department: b.department,
+        appliedDate: `2026-02-${day}`,
+        techStackTags: b.techStackTags,
+      });
+    }
+    return out;
+  }, []);
 
   useEffect(() => {
-    // ✅ 지원자 페이지 열면 신규 알림 확인 처리(빨간 점 끄기)
     if (storage.setHasNewApplicants) storage.setHasNewApplicants(false);
   }, []);
 
   useEffect(() => {
-    // =========================
     // ✅ 레이아웃 확인: 더미 데이터 사용
-    // =========================
     setList(dummyList);
     setLoading(false);
     setErrorMsg("");
 
     /*
-    // =========================
     // ✅ 백엔드 연동 시 (배포 전 주석 해제)
-    // =========================
     const fetchList = async () => {
       try {
         setLoading(true);
         setErrorMsg("");
-
         const res = await api.get("/clubadmin/applications/summary");
         const arr = Array.isArray(res?.data) ? res.data : [];
         setList(arr);
@@ -154,13 +149,11 @@ export default function ApplicantsPage() {
         setLoading(false);
       }
     };
-
     fetchList();
     */
   }, [dummyList]);
 
-  // ✅ 동아리 1개라서 필터 없음(탭은 UI용)
-  const filtered = useMemo(() => list, [list]);
+  const filtered = useMemo(() => list, [list]); // 동아리 1개라 필터 없음
 
   return (
     <div className="applicants-page">
@@ -172,7 +165,6 @@ export default function ApplicantsPage() {
 
         <TopTabs value={tab} onChange={setTab} />
 
-        {/* ✅ shell 안에서 이 영역(리스트)만 스크롤 */}
         <div className="applicants-content">
           {loading ? (
             <div className="applicants-state">불러오는 중…</div>
@@ -187,8 +179,7 @@ export default function ApplicantsPage() {
                   key={it.applicationId}
                   item={it}
                   onClick={() => {
-                    // ✅ 나중에 상세 페이지 만들면 연결
-                    // navigate(`/mypage/applicants/${it.applicationId}`);
+                    // 상세 페이지 연결 예정
                   }}
                 />
               ))}
