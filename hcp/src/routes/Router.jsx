@@ -1,4 +1,4 @@
-// src/routes/Router.jsx
+// src/routes/Router.jsx (핵심만 반영한 전체 교체본)
 import React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
@@ -19,12 +19,13 @@ import AdminRoute from "./AdminRoute";
 import MainPage from "../pages/main/MainPage";
 import ClubsPage from "../pages/clubs/ClubsPage";
 
-// ✅ 마이페이지 관련
 import MyPageLocked from "../pages/mypage/MyPageLocked";
 import MyPage from "../pages/mypage/MyPage";
-
-// ✅ 지원자 목록 페이지 추가
 import ApplicantsPage from "../pages/mypage/ApplicantsPage";
+
+// ✅ 지원서 양식/열람 (파일명 단순화)
+import ApplyWrite from "../pages/apply/ApplyWrite";
+import ApplyRead from "../pages/apply/ApplyRead";
 
 function TempPage({ title }) {
   return (
@@ -49,7 +50,6 @@ function TempPage({ title }) {
 
 export default function Router() {
   const location = useLocation();
-
   const baseLocation = location.state?.backgroundLocation;
   const prevOverlayLocation = location.state?.prevOverlayLocation;
 
@@ -60,20 +60,31 @@ export default function Router() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/splash" element={<SplashPage />} />
 
-        {/* ✅ 관리자 로그인도 AppShell 배경은 유지, 단 헤더/메뉴만 숨김 */}
+        {/* ✅ 배경만(헤더/메뉴 없음): 관리자 로그인 + 지원서(작성/열람) */}
         <Route element={<AppShell showHeader={false} showMenu={false} />}>
           <Route path="/admin/login" element={<AdminLoginPage />} />
+
+          {/* ✅ 지원자 작성용(비회원 가능) */}
+          <Route path="/clubs/apply" element={<ApplyWrite />} />
+
+          {/* ✅ 관리자 열람용(ADMIN만) */}
+          <Route
+            path="/mypage/applicants/:applicationId"
+            element={
+              <AdminRoute guestFallbackPath="/mypage/locked">
+                <ApplyRead />
+              </AdminRoute>
+            }
+          />
         </Route>
 
-        {/* ✅ 게스트도 접근 가능한 공개 App 영역 */}
+        {/* ✅ 일반 App 영역(헤더/메뉴 있음) */}
         <Route element={<AppShell />}>
           <Route path="/main" element={<MainPage />} />
           <Route path="/clubs" element={<ClubsPage />} />
 
-          {/* ✅ 잠김 안내 페이지(게스트용) */}
           <Route path="/mypage/locked" element={<MyPageLocked />} />
 
-          {/* ✅ 마이페이지는 ADMIN만 */}
           <Route
             path="/mypage"
             element={
@@ -83,7 +94,6 @@ export default function Router() {
             }
           />
 
-          {/* ✅ 마이페이지 하위 */}
           <Route
             path="/mypage/intro"
             element={
@@ -93,7 +103,6 @@ export default function Router() {
             }
           />
 
-          {/* ✅ 지원자 리스트: TempPage → ApplicantsPage로 교체 */}
           <Route
             path="/mypage/applicants"
             element={
@@ -104,19 +113,14 @@ export default function Router() {
           />
         </Route>
 
-        {/* signup (public) */}
         <Route path="/signup" element={<SignupVerifyPage />} />
         <Route path="/signup/step2" element={<SignupStep2Page />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {/* 2) Step1 정적 오버레이 유지 */}
       {prevOverlayLocation ? (
-        <Routes
-          location={prevOverlayLocation}
-          key={`prev-${prevOverlayLocation.key}`}
-        >
+        <Routes location={prevOverlayLocation} key={`prev-${prevOverlayLocation.key}`}>
           <Route
             path="/signup"
             element={
@@ -128,7 +132,6 @@ export default function Router() {
         </Routes>
       ) : null}
 
-      {/* 3) 현재 오버레이(애니메이션) */}
       <AnimatePresence initial={false}>
         {baseLocation ? (
           <Routes location={location} key={`cur-${location.key}`}>

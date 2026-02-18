@@ -1,8 +1,9 @@
 // src/pages/mypage/ApplicantsPage.jsx
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/mypage/ApplicantsPage.css";
 
-import api from "../../api/axios";
+// import api from "../../api/axios"; //백엔드 연동시 사용
 import { storage } from "../../utils/storage";
 
 /** 날짜 표시용: "2026-02-10" -> "2026.02.10" */
@@ -72,6 +73,8 @@ function ApplicantCard({ item, onClick }) {
 }
 
 export default function ApplicantsPage() {
+  const navigate = useNavigate();
+
   const [tab, setTab] = useState("멋쟁이 사자");
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -221,7 +224,8 @@ export default function ApplicantsPage() {
                   key={it.applicationId}
                   item={it}
                   onClick={() => {
-                    // 상세 페이지 연결 예정
+                    // ✅ 5번 적용: 클릭 → 지원서 상세(관리자 열람)로 이동
+                    navigate(`/mypage/applicants/${it.applicationId}`);
                   }}
                 />
               ))}

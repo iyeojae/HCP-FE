@@ -1,0 +1,295 @@
+.apply-page{
+  min-block-size: 100dvh;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+
+  /* AppShell 배경 위에 얹는 컨텐츠라 배경색은 따로 안 깔아도 됨 */
+  padding-inline: clamp(1rem, 4vw, 1.25rem);
+  padding-block-start: clamp(0.8rem, 3vw, 1rem);
+  padding-block-end: calc(clamp(1rem, 4vw, 1.2rem) + env(safe-area-inset-bottom));
+}
+
+.apply-top{
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: clamp(0.6rem, 2.5vw, 0.9rem);
+  padding-block: clamp(0.4rem, 2vw, 0.6rem);
+}
+
+.apply-arrow{
+  inline-size: clamp(2.2rem, 9vw, 2.6rem);
+  block-size: clamp(2.2rem, 9vw, 2.6rem);
+  border-radius: 9999px;
+  border: 0.0625rem solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.18);
+  color: #fff;
+  font-size: clamp(1.4rem, 6vw, 1.7rem);
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.apply-arrow.is-disabled{
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.apply-progress{
+  position: relative;
+  block-size: clamp(0.22rem, 1vw, 0.28rem);
+}
+
+.apply-progress__track{
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.18);
+}
+
+.apply-progress__fill{
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: 9999px;
+  background: rgba(106, 234, 189, 0.9);
+}
+
+.apply-body{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block-start: clamp(1rem, 4vw, 1.2rem);
+}
+
+.apply-titleWrap{
+  text-align: center;
+  margin-block-end: clamp(1.0rem, 4vw, 1.4rem);
+}
+
+.apply-title{
+  font-size: clamp(1.35rem, 6vw, 1.9rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.apply-sub{
+  margin-top: 0.45rem;
+  font-size: clamp(0.82rem, 3.2vw, 0.95rem);
+  opacity: 0.8;
+}
+
+.apply-section{
+  inline-size: 100%;
+  max-inline-size: min(26rem, 100%);
+  display: grid;
+  gap: clamp(0.8rem, 3.2vw, 1.1rem);
+}
+
+/* 입력 기본 */
+.apply-input{
+  inline-size: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #fff;
+  font-size: clamp(1.05rem, 4.2vw, 1.25rem);
+  font-weight: 800;
+  text-align: center;
+  padding-block: 0.6rem;
+}
+
+.apply-underline{
+  inline-size: 100%;
+  block-size: 0.11rem;
+  background: rgba(255,255,255,0.45);
+  border-radius: 9999px;
+}
+
+.apply-input--pill{
+  text-align: center;
+  padding: 0.8rem 1rem;
+  border-radius: 0.8rem;
+  border: 0.0625rem solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+}
+
+/* 연락처 */
+.apply-fieldGroup{
+  display: grid;
+  gap: 0.55rem;
+}
+
+.apply-fieldLabel{
+  font-size: clamp(0.9rem, 3.6vw, 1.05rem);
+  font-weight: 850;
+  opacity: 0.92;
+  text-align: left;
+}
+
+.apply-contactRow{
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(0.6rem, 2.6vw, 0.8rem);
+  align-items: center;
+}
+
+.apply-contactPrefix{
+  inline-size: clamp(3.4rem, 14vw, 3.8rem);
+  block-size: clamp(2.6rem, 10vw, 2.9rem);
+  border-radius: 0.8rem;
+  border: 0.0625rem solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.apply-contactInput{
+  text-align: center;
+}
+
+.apply-hint{
+  font-size: clamp(0.78rem, 3vw, 0.9rem);
+  opacity: 0.75;
+  text-align: left;
+}
+
+/* Tech chips */
+.apply-chipGrid{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(0.55rem, 2.2vw, 0.75rem);
+}
+
+.apply-chip{
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 9999px;
+  border: 0.0625rem solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.apply-chip__iconSlot{
+  inline-size: 1.2rem;
+  block-size: 1.2rem;
+  border-radius: 0.35rem;
+  background: rgba(255,255,255,0.25);
+}
+
+.apply-chip.is-active{
+  background: rgba(255,255,255,0.22);
+  border-color: rgba(255,255,255,0.35);
+}
+
+.apply-chip.is-disabled{
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* 지원파트 */
+.apply-partList{
+  display: grid;
+  gap: clamp(0.7rem, 2.8vw, 0.9rem);
+}
+
+.apply-partBtn{
+  inline-size: 100%;
+  border: none;
+  cursor: pointer;
+
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: clamp(0.6rem, 2.6vw, 0.8rem);
+
+  padding: 0.95rem 1rem;
+  border-radius: 0.9rem;
+
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  font-weight: 900;
+}
+
+.apply-partBtn__iconSlot{
+  inline-size: 1.35rem;
+  block-size: 1.35rem;
+  border-radius: 0.35rem;
+  background: rgba(255,255,255,0.28);
+}
+
+.apply-partBtn.is-active{
+  background: rgba(255,255,255,0.28);
+}
+
+/* 동기 textarea */
+.apply-textarea{
+  inline-size: 100%;
+  border-radius: 0.9rem;
+  border: 0.0625rem solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.25);
+  color: #fff;
+  padding: 1rem;
+  font-size: clamp(0.9rem, 3.6vw, 1rem);
+  line-height: 1.5;
+  outline: none;
+  resize: none;
+}
+
+/* 메시지 */
+.apply-msg{
+  inline-size: 100%;
+  max-inline-size: min(26rem, 100%);
+  margin-top: clamp(0.8rem, 3vw, 1rem);
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.9rem;
+  border: 0.0625rem solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.18);
+  font-weight: 800;
+  text-align: center;
+}
+
+.apply-msg--error{
+  color: rgba(255, 210, 210, 0.95);
+}
+
+.apply-msg--ok{
+  color: rgba(200, 255, 220, 0.95);
+}
+
+/* 하단 CTA */
+.apply-footer{
+  inline-size: 100%;
+  display: grid;
+  place-items: center;
+  padding-block-start: clamp(0.8rem, 3vw, 1rem);
+}
+
+.apply-cta{
+  inline-size: 100%;
+  max-inline-size: min(26rem, 100%);
+  block-size: clamp(3.3rem, 12vw, 3.8rem);
+  border-radius: 9999px;
+  border: none;
+  cursor: not-allowed;
+
+  background: rgba(210, 210, 210, 0.35);
+  color: rgba(255,255,255,0.85);
+  font-weight: 900;
+  font-size: clamp(0.95rem, 3.6vw, 1.05rem);
+}
+
+.apply-cta.is-active{
+  cursor: pointer;
+  background: rgba(124, 70, 255, 0.85);
+}
