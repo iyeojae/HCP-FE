@@ -2,12 +2,14 @@
 import axios from "axios";
 import { storage } from "../utils/storage";
 
-const BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080/api";
+// ✅ .env 없으면 배포 서버로 기본 연결되게
+const DEFAULT_BASE_URL = "https://api.likelionhsu.kr/api";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL || DEFAULT_BASE_URL;
 
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
-  withCredentials: true, // refreshToken을 HttpOnly Cookie로 쓰는 경우 필수
+  withCredentials: false, // refreshToken을 HttpOnly Cookie로 쓰는 경우에만 필요
 });
 
 // ✅ refresh 전용(인터셉터 없는) 클라이언트
@@ -44,12 +46,21 @@ function processQueue(error, newAccessToken = null) {
 }
 
 function clearAuthFallback() {
-  if (storage.clearAuth) storage.clearAuth();
-  else if (storage.clearAll) storage.clearAll();
-  else {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("user");
+  // ✅ storage 확장 버전이 있으면 그걸 우선 사용
+  if (storage.clearAuth) {
+    storage.clearAuth();
+    return;
   }
+
+  // ✅ fallback: 프로젝트에서 쓰는 키까지 같이 제거
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("user");
+  localStorage.removeItem("role");
+  localStorage.removeItem("loginId");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("adminName");
+  localStorage.removeItem("adminDept");
+  localStorage.removeItem("hasNewApplicants");
 }
 
 function extractAccessToken(res) {
@@ -75,9 +86,10 @@ function extractAccessToken(res) {
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const original = error.config;
+    const original = error?.config;
 
-    if (!error.response) return Promise.reject(error);
+    // 네트워크 에러 등
+    if (!error?.response || !original) return Promise.reject(error);
 
     const status = error.response.status;
     const url = original?.url || "";
@@ -124,8 +136,6 @@ api.interceptors.response.use(
     } catch (e) {
       processQueue(e, null);
       clearAuthFallback();
-      // 필요하면 강제 이동:
-      // window.location.href = "/login";
       return Promise.reject(e);
     } finally {
       isRefreshing = false;

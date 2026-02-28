@@ -1,6 +1,26 @@
 // src/pages/apply/ApplyForm.jsx
 import React, { useMemo, useState } from "react";
-import "../../styles/apply/ApplicationFormPage.css"; // ✅ 기존 CSS 그대로 재사용
+import "../../styles/apply/ApplicationFormPage.css";
+
+// ✅ tech 아이콘들
+import IconAdobe from "../../assets/apply/adobe.svg";
+import IconAws from "../../assets/apply/aws.svg";
+import IconC from "../../assets/apply/c.svg";
+import IconFigma from "../../assets/apply/figma.svg";
+import IconGcp from "../../assets/apply/gcp.svg";
+import IconGit from "../../assets/apply/git.svg";
+import IconJava from "../../assets/apply/java.svg";
+import IconJs from "../../assets/apply/js.svg";
+import IconMysql from "../../assets/apply/mysql.svg";
+import IconPython from "../../assets/apply/python.svg";
+import IconRedis from "../../assets/apply/redis.svg";
+import IconTs from "../../assets/apply/ts.svg";
+
+// ✅ part 아이콘들
+import IconDesign from "../../assets/apply/design.svg";
+import IconBackend from "../../assets/apply/backend.svg";
+import IconFrontend from "../../assets/apply/frontend.svg";
+import IconNoChoice from "../../assets/apply/nochoice.svg";
 
 const STEPS = [
   { key: "name", title: "이름을 적어주세요.", sub: "지원자님의 이름을 적어주세요." },
@@ -11,7 +31,6 @@ const STEPS = [
   { key: "motivation", title: "지원 계기가 뭔가요?", sub: "" },
 ];
 
-// ✅ UI 라벨(띄어쓰기 포함 OK) — 전송할 때만 공백 제거하면 됨
 const TECH_OPTIONS = [
   "GCP",
   "Google",
@@ -31,12 +50,49 @@ const TECH_OPTIONS = [
 
 const PART_OPTIONS = ["디자인", "백엔드", "프론트 엔드", "선택 미정"];
 
+// ✅ 라벨 → 아이콘 매핑
+// (Google / Spring Boot 전용 아이콘이 없어서 일단 비슷한 아이콘으로 연결해둠)
+const TECH_ICON_MAP = {
+  GCP: IconGcp,
+  Google: IconGcp,
+  Figma: IconFigma,
+  Python: IconPython,
+  C: IconC,
+  Redis: IconRedis,
+  TS: IconTs,
+  AWS: IconAws,
+  Git: IconGit,
+  Java: IconJava,
+  MySQL: IconMysql,
+  "Adobe Illustrator": IconAdobe,
+  "Spring Boot": IconBackend, // 전용 아이콘 없으면 임시로 backend 사용
+  JS: IconJs,
+};
+
+const PART_ICON_MAP = {
+  디자인: IconDesign,
+  백엔드: IconBackend,
+  "프론트 엔드": IconFrontend,
+  "선택 미정": IconNoChoice,
+};
+
 const normalizeTag = (s) => String(s || "").replace(/\s+/g, "");
 const splitTechStack = (s) =>
   String(s || "")
     .split(",")
     .map((v) => v.trim())
     .filter(Boolean);
+
+const digitsOnly = (s) => String(s || "").replace(/[^\d]/g, "");
+
+/** value.contact(예: 010-1234-5678) → rest(1234-5678) */
+function contactToRest(contact) {
+  const d = digitsOnly(contact);
+  const rest = (d.startsWith("010") ? d.slice(3) : d).slice(0, 8);
+  if (!rest) return "";
+  if (rest.length <= 4) return rest;
+  return `${rest.slice(0, 4)}-${rest.slice(4)}`;
+}
 
 function StepHeader({ stepIndex, onPrev, onNext, canPrev, canNext }) {
   const progressPct = useMemo(() => {
@@ -74,17 +130,20 @@ function StepHeader({ stepIndex, onPrev, onNext, canPrev, canNext }) {
   );
 }
 
-function Chip({ active, onClick, disabled, children }) {
+function Chip({ active, onClick, disabled, label, iconSrc }) {
   return (
     <button
       type="button"
-      className={`apply-chip ${active ? "is-active" : ""}`}
+      className={`apply-chip ${active ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
       onClick={onClick}
       disabled={disabled}
     >
-      {/* ✅ 아이콘은 네가 <img src={ICON}>로 교체할 슬롯 */}
-      <span className="apply-chip__iconSlot" aria-hidden="true" />
-      <span className="apply-chip__label">{children}</span>
+      <span className="apply-chip__iconSlot" aria-hidden="true">
+        {iconSrc ? (
+          <img className="apply-chip__iconImg" src={iconSrc} alt="" aria-hidden="true" />
+        ) : null}
+      </span>
+      <span className="apply-chip__label">{label}</span>
     </button>
   );
 }
@@ -100,27 +159,46 @@ export default function ApplyForm({
 }) {
   const [step, setStep] = useState(0);
 
-  const canPrev = step > 0;
-  const canNext = step < STEPS.length - 1;
-
   const readOnly = mode === "read";
 
   const selectedTechRaw = useMemo(() => {
-    // write: value.techTags 배열(라벨)
-    // read: value.techStack 문자열 or value.techTags 배열(토큰)
-    if (Array.isArray(value?.techTags)) return value.techTags;
-    if (value?.techStack) return splitTechStack(value.techStack);
+    if (Array.isArray(value?.techTags)) return value.techTags; // write
+    if (value?.techStack) return splitTechStack(value.techStack); // read
     return [];
   }, [value]);
 
-  const selectedTechSet = useMemo(() => {
-    return new Set(selectedTechRaw.map(normalizeTag));
-  }, [selectedTechRaw]);
+  const selectedTechSet = useMemo(
+    () => new Set(selectedTechRaw.map(normalizeTag)),
+    [selectedTechRaw]
+  );
 
   const techOptionsUnion = useMemo(() => {
     const extras = selectedTechRaw.filter((t) => !TECH_OPTIONS.includes(t));
     return [...TECH_OPTIONS, ...extras];
   }, [selectedTechRaw]);
+
+  const isStepValid = useMemo(() => {
+    if (readOnly) return () => true;
+
+    return (s) => {
+      if (s === 0) return !!(value?.name || "").trim();
+      if (s === 1) return !!(value?.department || "").trim();
+
+      if (s === 2) {
+        const contactDigits = digitsOnly(value?.contact || "");
+        const studentNoOk = !!String(value?.studentNo || "").trim();
+        return contactDigits.length === 11 && studentNoOk;
+      }
+
+      if (s === 3) return selectedTechRaw.length >= 3;
+      if (s === 4) return !!(value?.applyPart || "").trim();
+      if (s === 5) return !!(value?.motivation || "").trim();
+      return true;
+    };
+  }, [readOnly, value, selectedTechRaw.length]);
+
+  const canPrev = !loading && step > 0;
+  const canNext = !loading && step < STEPS.length - 1 && isStepValid(step);
 
   const toggleTech = (label) => {
     if (readOnly) return;
@@ -129,16 +207,13 @@ export default function ApplyForm({
     const cur = Array.isArray(value?.techTags) ? value.techTags : [];
     const curSet = new Set(cur.map(normalizeTag));
 
-    // 이미 선택됨 → 제거
     if (curSet.has(norm)) {
       const next = cur.filter((t) => normalizeTag(t) !== norm);
       onChange({ techTags: next });
       return;
     }
 
-    // 최대 3개 제한
     if (cur.length >= 3) return;
-
     onChange({ techTags: [...cur, label] });
   };
 
@@ -150,17 +225,22 @@ export default function ApplyForm({
     return step < STEPS.length - 1 ? "다음" : "지원하기";
   }, [readOnly, step]);
 
+  const footerEnabled = useMemo(() => {
+    if (loading) return false;
+    if (readOnly) return true;
+    if (step < STEPS.length - 1) return isStepValid(step);
+    return isStepValid(5);
+  }, [loading, readOnly, step, isStepValid]);
+
   const onFooter = () => {
-    if (step < STEPS.length - 1) {
-      goNext();
-      return;
-    }
-    if (readOnly) {
-      onClose?.();
-      return;
-    }
-    onSubmit?.();
+    if (!footerEnabled) return;
+
+    if (step < STEPS.length - 1) return goNext();
+    if (readOnly) return onClose?.();
+    return onSubmit?.();
   };
+
+  const contactRest = useMemo(() => contactToRest(value?.contact || ""), [value?.contact]);
 
   return (
     <div className="apply-page">
@@ -209,18 +289,26 @@ export default function ApplyForm({
               </section>
             ) : null}
 
-            {/* 3) 연락처 + 학번 */}
+            {/* 3) 연락처(010 고정) + 학번 */}
             {step === 2 ? (
               <section className="apply-section" aria-label="연락처 및 학번">
                 <div className="apply-fieldGroup">
                   <div className="apply-fieldLabel">연락처</div>
-                  <input
-                    className="apply-input apply-input--pill"
-                    value={value?.contact || ""}
-                    readOnly={readOnly}
-                    onChange={(e) => onChange({ contact: e.target.value })}
-                    placeholder="010-1234-5678"
-                  />
+
+                  <div className="apply-contactRow">
+                    <div className="apply-contactPrefix" aria-label="010 고정">
+                      010
+                    </div>
+
+                    <input
+                      className="apply-input apply-input--pill apply-contactInput"
+                      value={contactRest}
+                      readOnly={readOnly}
+                      onChange={(e) => onChange({ contact: e.target.value })}
+                      placeholder="1234-5678"
+                      inputMode="numeric"
+                    />
+                  </div>
                 </div>
 
                 <div className="apply-fieldGroup">
@@ -230,8 +318,13 @@ export default function ApplyForm({
                     value={value?.studentNo || ""}
                     readOnly={readOnly}
                     onChange={(e) => onChange({ studentNo: e.target.value })}
+                    inputMode="numeric"
                   />
                 </div>
+
+                {!readOnly ? (
+                  <div className="apply-hint">※ 연락처는 010을 제외한 8자리만 입력하면 됩니다.</div>
+                ) : null}
               </section>
             ) : null}
 
@@ -241,18 +334,24 @@ export default function ApplyForm({
                 <div className="apply-chipGrid" role="list">
                   {techOptionsUnion.map((label) => {
                     const active = selectedTechSet.has(normalizeTag(label));
+                    const limitReached = !readOnly && selectedTechRaw.length >= 3 && !active;
+
                     return (
                       <Chip
                         key={label}
+                        label={label}
+                        iconSrc={TECH_ICON_MAP[label]}
                         active={active}
-                        disabled={readOnly}
+                        disabled={readOnly || limitReached}
                         onClick={() => toggleTech(label)}
-                      >
-                        {label}
-                      </Chip>
+                      />
                     );
                   })}
                 </div>
+
+                {!readOnly ? (
+                  <div className="apply-hint">선택됨: {selectedTechRaw.length} / 3</div>
+                ) : null}
               </section>
             ) : null}
 
@@ -262,6 +361,8 @@ export default function ApplyForm({
                 <div className="apply-partList">
                   {PART_OPTIONS.map((label) => {
                     const active = (value?.applyPart || "") === label;
+                    const iconSrc = PART_ICON_MAP[label];
+
                     return (
                       <button
                         key={label}
@@ -270,7 +371,16 @@ export default function ApplyForm({
                         disabled={readOnly}
                         onClick={() => onChange({ applyPart: label })}
                       >
-                        <span className="apply-partBtn__iconSlot" aria-hidden="true" />
+                        <span className="apply-partBtn__iconSlot" aria-hidden="true">
+                          {iconSrc ? (
+                            <img
+                              className="apply-partBtn__iconImg"
+                              src={iconSrc}
+                              alt=""
+                              aria-hidden="true"
+                            />
+                          ) : null}
+                        </span>
                         <span className="apply-partBtn__label">{label}</span>
                       </button>
                     );
@@ -296,7 +406,12 @@ export default function ApplyForm({
       </div>
 
       <div className="apply-footer">
-        <button type="button" className="apply-cta is-active" onClick={onFooter}>
+        <button
+          type="button"
+          className={`apply-cta ${footerEnabled ? "is-active" : ""}`}
+          onClick={onFooter}
+          disabled={!footerEnabled}
+        >
           {footerBtnText}
         </button>
       </div>

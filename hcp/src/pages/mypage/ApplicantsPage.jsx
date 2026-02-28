@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/mypage/ApplicantsPage.css";
 
-// import api from "../../api/axios"; //백엔드 연동시 사용
+import api from "../../api/axios";
 import { storage } from "../../utils/storage";
 
 /** 날짜 표시용: "2026-02-10" -> "2026.02.10" */
@@ -80,125 +80,49 @@ export default function ApplicantsPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // ✅ 레이아웃 확인용 더미 데이터 (10개)
-  const dummyList = useMemo(
-    () => [
-      {
-        applicationId: 1,
-        name: "김형석",
-        department: "항공소프트웨어공학과",
-        appliedDate: "2026-02-10",
-        techStackTags: ["Java", "Spring", "Boot", "JPA", "MySQL"],
-      },
-      {
-        applicationId: 2,
-        name: "홍길동",
-        department: "컴퓨터공학과",
-        appliedDate: "2026-02-11",
-        techStackTags: ["React", "TypeScript", "CSS", "Figma"],
-      },
-      {
-        applicationId: 3,
-        name: "이몽룡",
-        department: "항공전자공학과",
-        appliedDate: "2026-02-12",
-        techStackTags: ["Python", "OpenCV", "YOLO", "Docker"],
-      },
-      {
-        applicationId: 4,
-        name: "성춘향",
-        department: "경영학과",
-        appliedDate: "2026-02-13",
-        techStackTags: ["Notion", "Excel", "PPT", "Communication"],
-      },
-      {
-        applicationId: 5,
-        name: "임꺽정",
-        department: "기계공학과",
-        appliedDate: "2026-02-14",
-        techStackTags: ["C", "C++", "ROS", "Embedded", "Linux", "Git"],
-      },
-      {
-        applicationId: 6,
-        name: "박지민",
-        department: "항공소프트웨어공학과",
-        appliedDate: "2026-02-15",
-        techStackTags: ["Node.js", "Express", "MongoDB", "JWT"],
-      },
-      {
-        applicationId: 7,
-        name: "최유진",
-        department: "디자인학과",
-        appliedDate: "2026-02-16",
-        techStackTags: ["Illustrator", "Photoshop", "Figma", "UI/UX"],
-      },
-      {
-        applicationId: 8,
-        name: "정우성",
-        department: "전자공학과",
-        appliedDate: "2026-02-17",
-        techStackTags: ["Arduino", "Embedded", "C", "Sensor"],
-      },
-      {
-        applicationId: 9,
-        name: "한지수",
-        department: "정보보호학과",
-        appliedDate: "2026-02-18",
-        techStackTags: ["Network", "Linux", "Security", "CTF"],
-      },
-      {
-        applicationId: 10,
-        name: "오세훈",
-        department: "산업경영공학과",
-        appliedDate: "2026-02-19",
-        techStackTags: ["Data", "Python", "Pandas", "Visualization"],
-      },
-    ],
-    []
-  );
-
   useEffect(() => {
     // ✅ 지원자 페이지 열면 신규 알림 확인 처리(빨간 점 끄기)
-    if (storage.setHasNewApplicants) storage.setHasNewApplicants(false);
+    storage.setHasNewApplicants?.(false);
   }, []);
 
   useEffect(() => {
-    // =========================
-    // ✅ 레이아웃 확인: 더미 데이터 사용
-    // =========================
-    setList(dummyList);
-    setLoading(false);
-    setErrorMsg("");
+    let alive = true;
 
-    /*
-    // =========================
-    // ✅ 백엔드 연동 시 (배포 전 주석 해제)
-    // =========================
     const fetchList = async () => {
       try {
         setLoading(true);
         setErrorMsg("");
 
+        // ✅ 실제 API 연동
         const res = await api.get("/clubadmin/applications/summary");
         const arr = Array.isArray(res?.data) ? res.data : [];
-        setList(arr);
+
+        // 응답 형태:
+        // [{ applicationId, name, department, appliedDate, techStackTags }, ...]
+        if (alive) setList(arr);
       } catch (e) {
         const msg =
           e?.response?.data?.message ||
           e?.response?.data?.error ||
           e?.message ||
           "지원자 목록을 불러오는 데 실패했습니다.";
-        setErrorMsg(msg);
+        if (alive) {
+          setErrorMsg(msg);
+          setList([]);
+        }
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
     };
 
     fetchList();
-    */
-  }, [dummyList]);
+    return () => {
+      alive = false;
+    };
+  }, []);
 
-  const filtered = useMemo(() => list, [list]);
+  // ✅ 동아리 1개라서 필터 없음(탭은 UI용)
+  const filtered = useMemo(() => list, [list, tab]);
 
   return (
     <div className="applicants-page">
@@ -224,7 +148,7 @@ export default function ApplicantsPage() {
                   key={it.applicationId}
                   item={it}
                   onClick={() => {
-                    // ✅ 5번 적용: 클릭 → 지원서 상세(관리자 열람)로 이동
+                    // ✅ 클릭 → 지원서 상세(관리자 열람)로 이동
                     navigate(`/mypage/applicants/${it.applicationId}`);
                   }}
                 />

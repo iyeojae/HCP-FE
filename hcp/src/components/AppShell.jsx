@@ -1,3 +1,4 @@
+// src/components/AppShell.jsx
 import React, { useEffect, useMemo, useRef } from "react";
 import { Outlet } from "react-router-dom";
 import "../styles/layout/AppShell.css";
@@ -14,17 +15,23 @@ import { storage } from "../utils/storage";
 export default function AppShell({ showHeader = true, showMenu = true }) {
   const canvasRef = useRef(null);
 
-  // ✅ location.key 의존성 필요 없음: 렌더 시점에 그냥 읽기
+  // ✅ 렌더 시점에 읽기
   const isAdmin = storage.isAdmin?.() || false;
 
-  // ✅ 메뉴는 isAdmin 값만 의존
+  /**
+   * ✅ 요구사항 반영
+   * - nav2: 메인
+   * - nav3: 목록
+   * - nav1: 마이페이지
+   * - 순서: 메인 → 목록 → 마이페이지
+   */
   const menuItems = useMemo(() => {
     return [
-      { to: "/main", iconSrc: nav1, label: "메인" },
-      { to: "/clubs", iconSrc: nav2, label: "동아리" },
+      { to: "/main", iconSrc: nav2, label: "메인" },
+      { to: "/clubs", iconSrc: nav3, label: "목록" },
       {
         to: "/mypage",
-        iconSrc: nav3,
+        iconSrc: nav1,
         label: "마이페이지",
         disabled: !isAdmin,
         disabledMessage: "관리자만 접근 가능한 마이페이지입니다.",

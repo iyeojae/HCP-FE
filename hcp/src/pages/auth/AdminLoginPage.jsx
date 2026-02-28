@@ -1,8 +1,11 @@
+// src/pages/auth/AdminLoginPage.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../../styles/auth/AdminLoginPage.css";
 
 import api from "../../api/axios";
+import { storage } from "../../utils/storage";
+
 import AdminIcon from "../../assets/auth/admin.svg";
 
 function EyeIcon({ open }) {
@@ -44,8 +47,8 @@ function EyeIcon({ open }) {
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // ✅ AppShell 느낌 그대로: 별 캔버스
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -78,7 +81,6 @@ export default function AdminLoginPage() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, cssW, cssH);
 
-      // AppShell과 동일 컨셉: 상단 위주로 별
       const starAreaH = cssH * 0.72;
       const density = 1 / 9000;
       const count = Math.max(40, Math.floor(cssW * starAreaH * density));
@@ -131,41 +133,28 @@ export default function AdminLoginPage() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (!canSubmit) return;
+
     setErrorMsg("");
 
     const id = loginId.trim();
     const pw = password.trim();
 
-    // ✅ 더미 요구사항
-    if (id === "test1234" && pw === "test1234") {
-      localStorage.setItem("accessToken", "DUMMY_TOKEN");
-      localStorage.setItem("role", "ADMIN");
-      navigate("/main", { replace: true });
-      return;
-    }
-
     try {
       setSubmitting(true);
-
-      /*
-      ✅ 백엔드 로그인 API
-      POST http://localhost:8080/api/auth/login
-      Body(JSON):
-      {
-        "loginId": "202200020",
-        "password": "test1234"
-      }
-      */
 
       const res = await api.post("/auth/login", { loginId: id, password: pw });
       const data = res?.data || {};
 
-      if (data?.accessToken) localStorage.setItem("accessToken", data.accessToken);
-      if (data?.role) localStorage.setItem("role", data.role);
-      if (data?.loginId) localStorage.setItem("loginId", data.loginId);
-      if (data?.userId != null) localStorage.setItem("userId", String(data.userId));
+      storage.clearAuth?.();
 
-      navigate("/main", { replace: true });
+      if (data?.accessToken) storage.setAccessToken?.(data.accessToken);
+      if (data?.role) storage.setRole?.(data.role);
+      if (data?.loginId) storage.setLoginId?.(data.loginId);
+      if (data?.userId != null) storage.setUserId?.(data.userId);
+
+      const redirectTo = location.state?.from?.pathname || "/main";
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       const msg =
         err?.response?.data?.message ||
@@ -180,10 +169,8 @@ export default function AdminLoginPage() {
 
   return (
     <div className="admin-login-page">
-      {/* ✅ 별 */}
       <canvas ref={canvasRef} className="admin-login-stars" aria-hidden="true" />
 
-      {/* ✅ 산 (AppShell과 동일) */}
       <div className="admin-login-mountains" aria-hidden="true">
         <svg
           className="admin-login-mountains__svg"
@@ -207,7 +194,6 @@ export default function AdminLoginPage() {
         </svg>
       </div>
 
-      {/* ✅ 실제 콘텐츠 레이어 */}
       <div className="admin-login-content">
         <div className="admin-login-topIcons" aria-hidden="true">
           <div className="admin-login-topIcons__dot">
@@ -219,18 +205,8 @@ export default function AdminLoginPage() {
           <div className="admin-field">
             <div className="admin-field__row">
               <label className="admin-field__label" htmlFor="admin-loginId">
-                이메일
+                로그인 ID
               </label>
-
-              <button
-                type="button"
-                className="admin-field__ghostBtn"
-                onClick={() => {
-                  // ✅ 나중에 인증번호 전송/인증 흐름 붙일 자리(UI만)
-                }}
-              >
-                인증번호 전송
-              </button>
             </div>
 
             <input
@@ -238,7 +214,7 @@ export default function AdminLoginPage() {
               className="admin-field__input"
               value={loginId}
               onChange={(e) => setLoginId(e.target.value)}
-              placeholder="test1234"
+              placeholder="이메일 주소"
               autoComplete="username"
             />
             <div className="admin-field__underline" aria-hidden="true" />
@@ -265,7 +241,7 @@ export default function AdminLoginPage() {
               className="admin-field__input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="test1234"
+              placeholder="비밀번호"
               type={showPw ? "text" : "password"}
               autoComplete="current-password"
             />

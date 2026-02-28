@@ -1,4 +1,5 @@
-import React from "react";
+// src/pages/mypage/MyPage.jsx
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/mypage/MyPage.css";
 
@@ -55,13 +56,20 @@ function ActionRow({ iconSrc, label, onClick, showDot = false }) {
 export default function MyPage() {
   const navigate = useNavigate();
 
-  // ✅ 불필요한 useMemo 제거 (eslint 경고 제거)
-  const displayName = storage.getAdminName?.() || "반다다";
-  const loginId = storage.getLoginId?.() || "20240000";
-  const dept = storage.getAdminDept?.() || "학과";
-  const studentLine = `${loginId} ${dept}`;
+  // ✅ B안: 값 없으면 기본값 사용 X → 표시 자체를 숨김
+  const adminName = (storage.getAdminName?.() || "").trim();
+  const loginId = (storage.getLoginId?.() || "").trim();
+  const dept = (storage.getAdminDept?.() || "").trim();
 
-  const hasNewApplicants = storage.getHasNewApplicants?.() || false;
+  // ✅ 학번/학과 표시 문자열 구성: 있는 것만 조합
+  const studentLine = useMemo(() => {
+    const parts = [];
+    if (loginId) parts.push(loginId);
+    if (dept) parts.push(dept);
+    return parts.join(" ");
+  }, [loginId, dept]);
+
+  const hasNewApplicants = !!storage.getHasNewApplicants?.();
 
   return (
     <div className="mypage">
@@ -72,8 +80,11 @@ export default function MyPage() {
           </div>
         </div>
 
-        <div className="mypage-name">{displayName}</div>
-        <div className="mypage-sub">{studentLine}</div>
+        {/* ✅ 이름: 없으면 숨김 */}
+        {adminName ? <div className="mypage-name">{adminName}</div> : null}
+
+        {/* ✅ 학번/학과 pill: 둘 다 없으면 숨김 */}
+        {studentLine ? <div className="mypage-sub">{studentLine}</div> : null}
       </section>
 
       <section className="mypage-actions" aria-label="관리자 메뉴">
