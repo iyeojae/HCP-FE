@@ -15,8 +15,98 @@ function formatDate(iso) {
   return `${y}.${m}.${d}`;
 }
 
+/**
+ * ✅ techStackTags가 아래처럼 와도 "태그 배열"로 정리
+ * - [] / null
+ * - "[]" (문자열)
+ * - '["Java","JS"]' (문자열)
+ * - ["[]"] (배열인데 원소가 "[]")
+ * - ["[\"Java\",\"JS\"]"] (배열인데 원소가 JSON 문자열)
+ */
+function normalizeTechTags(raw) {
+  const out = [];
+
+  const push = (v) => {
+    const s = String(v ?? "").trim();
+    if (!s) return;
+
+    const lower = s.toLowerCase();
+    if (s === "[]" || lower === "null" || lower === "undefined") return;
+
+    out.push(s);
+  };
+
+  const handle = (x) => {
+    if (x == null) return;
+
+    // 배열이면 flatten
+    if (Array.isArray(x)) {
+      x.forEach(handle);
+      return;
+    }
+
+    // 문자열 처리
+    if (typeof x === "string") {
+      let s = x.trim();
+      if (!s || s === "[]") return;
+
+      // 1) 양끝 따옴표 제거( "...." or '....' )
+      if (
+        (s.startsWith('"') && s.endsWith('"')) ||
+        (s.startsWith("'") && s.endsWith("'"))
+      ) {
+        s = s.slice(1, -1).trim();
+      }
+
+      // 2) 이스케이프 제거 ( \" -> " )
+      s = s.replace(/\\"/g, '"').replace(/\\'/g, "'").trim();
+      if (!s || s === "[]") return;
+
+      // 3) JSON 배열 문자열이면 파싱 시도
+      if (s.startsWith("[") && s.endsWith("]")) {
+        try {
+          const parsed = JSON.parse(s);
+          if (Array.isArray(parsed)) {
+            parsed.forEach(handle);
+            return;
+          }
+        } catch {
+          // 파싱 실패면 bracket 제거 후 콤마 split
+          const inner = s.slice(1, -1).trim();
+          if (!inner) return;
+          inner.split(",").map((v) => v.trim()).forEach(handle);
+          return;
+        }
+      }
+
+      // 4) 콤마로 이어진 문자열이면 분리
+      if (s.includes(",")) {
+        s.split(",").map((v) => v.trim()).forEach(handle);
+        return;
+      }
+
+      // 5) 최종 토큰: 남아있는 따옴표/괄호 제거
+      s = s.replace(/^\[|\]$/g, "").replace(/^["']|["']$/g, "").trim();
+      push(s);
+      return;
+    }
+
+    // 그 외 타입은 문자열화
+    push(x);
+  };
+
+  handle(raw);
+
+  // ✅ 최종 필터: 혹시 남은 '["Java"]' 같은 문자열도 한번 더 정리
+  const cleaned = out
+    .map((s) => s.replace(/^\[|\]$/g, "").replace(/"/g, "").replace(/'/g, "").trim())
+    .filter((s) => s && s !== "[]");
+
+  // ✅ 중복 제거
+  return Array.from(new Set(cleaned));
+}
+
 function TopTabs({ value, onChange }) {
-  // ✅ 동아리 1개 고정
   const tabs = ["멋쟁이 사자"];
   return (
     <div className="applicants-tabs" role="tablist" aria-label="동아리 탭">
@@ -39,13 +129,35 @@ function TopTabs({ value, onChange }) {
   );
 }
 
+function PersonIcon() {
+  return (
+    <svg
+      className="applicant-card__avatarSvg"
+      viewBox="0 0 64 64"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {/* head */}
+      <circle cx="32" cy="22" r="12" fill="rgba(255,255,255,0.75)" />
+      {/* shoulders */}
+      <path
+        d="M10 58c2-14 14-20 22-20s20 6 22 20"
+        fill="rgba(255,255,255,0.55)"
+      />
+    </svg>
+  );
+}
+
 function ApplicantCard({ item, onClick }) {
-  const tagsText = (item.techStackTags || []).join(" · ");
+  const tags = normalizeTechTags(item.techStackTags);
+  const tagsText = tags.length ? tags.join(" · ") : "";
 
   return (
     <button type="button" className="applicant-card" onClick={onClick}>
       <div className="applicant-card__left" aria-hidden="true">
-        <div className="applicant-card__avatar" />
+        <div className="applicant-card__avatar">
+          <PersonIcon />
+        </div>
       </div>
 
       <div className="applicant-card__body">
@@ -56,15 +168,14 @@ function ApplicantCard({ item, onClick }) {
           <div className="applicant-card__date">{formatDate(item.appliedDate)}</div>
         </div>
 
-        {/* ✅ 태그는 상자 제거 → 그냥 텍스트만 */}
-        {tagsText ? (
-          <div className="applicant-card__tagsText" aria-label="기술스택">
-            {tagsText}
-          </div>
-        ) : null}
+        <div
+          className={`applicant-card__tagsText ${tagsText ? "" : "is-empty"}`}
+          aria-label="자신있는 분야"
+        >
+          {tagsText || "자신있는 분야 X"}
+        </div>
       </div>
 
-      {/* ✅ 우측 세로영역 전체를 #D9CBDF */}
       <div className="applicant-card__right" aria-hidden="true">
         <span className="applicant-card__chev">›</span>
       </div>
@@ -81,7 +192,6 @@ export default function ApplicantsPage() {
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    // ✅ 지원자 페이지 열면 신규 알림 확인 처리(빨간 점 끄기)
     storage.setHasNewApplicants?.(false);
   }, []);
 
@@ -93,12 +203,9 @@ export default function ApplicantsPage() {
         setLoading(true);
         setErrorMsg("");
 
-        // ✅ 실제 API 연동
         const res = await api.get("/clubadmin/applications/summary");
         const arr = Array.isArray(res?.data) ? res.data : [];
 
-        // 응답 형태:
-        // [{ applicationId, name, department, appliedDate, techStackTags }, ...]
         if (alive) setList(arr);
       } catch (e) {
         const msg =
@@ -121,7 +228,6 @@ export default function ApplicantsPage() {
     };
   }, []);
 
-  // ✅ 동아리 1개라서 필터 없음(탭은 UI용)
   const filtered = useMemo(() => list, [list, tab]);
 
   return (
@@ -147,10 +253,7 @@ export default function ApplicantsPage() {
                 <ApplicantCard
                   key={it.applicationId}
                   item={it}
-                  onClick={() => {
-                    // ✅ 클릭 → 지원서 상세(관리자 열람)로 이동
-                    navigate(`/mypage/applicants/${it.applicationId}`);
-                  }}
+                  onClick={() => navigate(`/mypage/applicants/${it.applicationId}`)}
                 />
               ))}
             </div>
