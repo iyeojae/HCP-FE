@@ -1,21 +1,16 @@
-// src/pages/club/ClubDetailInfo.jsx
+// src/pages/clubs/ClubDetailInfo.jsx
 import React from "react";
 
-export default function ClubDetailInfo({
-  activeTab,
-  onChangeTab,
-  introduction,
-  interviewProcess,
-}) {
-  const isIntro = activeTab === "INTRO";
+export default function ClubDetailInfo({ tab, setTab, introduction, interviewProcess }) {
+  const isIntro = tab === "INTRO";
 
   return (
-    <div className="clubD-infoWrap">
-      <div className="clubD-tabs" role="tablist" aria-label="상세 탭">
+    <section className="clubDetail-info">
+      <div className="clubDetail-tabs" role="tablist" aria-label="상세 탭">
         <button
           type="button"
-          className={`clubD-tab ${isIntro ? "active" : ""}`}
-          onClick={() => onChangeTab("INTRO")}
+          className={`clubDetail-tab ${isIntro ? "active" : ""}`}
+          onClick={() => setTab("INTRO")}
           role="tab"
           aria-selected={isIntro}
         >
@@ -23,8 +18,8 @@ export default function ClubDetailInfo({
         </button>
         <button
           type="button"
-          className={`clubD-tab ${!isIntro ? "active" : ""}`}
-          onClick={() => onChangeTab("PROCESS")}
+          className={`clubDetail-tab ${!isIntro ? "active" : ""}`}
+          onClick={() => setTab("PROCESS")}
           role="tab"
           aria-selected={!isIntro}
         >
@@ -32,23 +27,23 @@ export default function ClubDetailInfo({
         </button>
       </div>
 
-      <div className="clubD-card">
-        <div className="clubD-cardTitle">{isIntro ? "동아리 소개&설명" : "모집 절차"}</div>
+      <div className="clubDetail-card">
+        <div className="clubDetail-cardTitle">{isIntro ? "동아리 소개&설명" : "모집 절차"}</div>
 
-        <div className="clubD-cardBody">
+        <div className="clubDetail-cardBody">
           {isIntro ? (
             introduction ? (
-              <pre className="clubD-pre">{introduction}</pre>
+              <pre className="clubDetail-pre">{introduction}</pre>
             ) : (
-              <div className="clubD-empty">소개글이 없습니다.</div>
+              <div className="clubDetail-empty">소개글이 없습니다.</div>
             )
           ) : interviewProcess ? (
-            <pre className="clubD-pre">{interviewProcess}</pre>
+            <pre className="clubDetail-pre">{interviewProcess}</pre>
           ) : (
-            <div className="clubD-empty">모집절차가 없습니다.</div>
+            <div className="clubDetail-empty">모집절차가 없습니다.</div>
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

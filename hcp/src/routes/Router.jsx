@@ -1,4 +1,4 @@
-// src/routes/Router.jsx (핵심만 반영한 전체 교체본)
+// src/routes/Router.jsx (전체 교체본 - 동아리 상세 라우트 추가 반영)
 import React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
@@ -18,6 +18,7 @@ import AdminRoute from "./AdminRoute";
 
 import MainPage from "../pages/main/MainPage";
 import ClubsPage from "../pages/clubs/ClubsPage";
+import ClubDetail from "../pages/clubs/ClubDetail"; // ✅ 추가
 
 import MyPageLocked from "../pages/mypage/MyPageLocked";
 import MyPage from "../pages/mypage/MyPage";
@@ -78,6 +79,11 @@ export default function Router() {
           />
         </Route>
 
+        {/* ✅ 상세는 헤더 없이(페이지가 자체 topbar를 가짐), 메뉴는 유지 */}
+        <Route element={<AppShell showHeader={false} showMenu={true} />}>
+          <Route path="/clubs/:clubId" element={<ClubDetail />} />
+        </Route>
+
         {/* ✅ 일반 App 영역(헤더/메뉴 있음) */}
         <Route element={<AppShell />}>
           <Route path="/main" element={<MainPage />} />
@@ -120,7 +126,10 @@ export default function Router() {
       </Routes>
 
       {prevOverlayLocation ? (
-        <Routes location={prevOverlayLocation} key={`prev-${prevOverlayLocation.key}`}>
+        <Routes
+          location={prevOverlayLocation}
+          key={`prev-${prevOverlayLocation.key}`}
+        >
           <Route
             path="/signup"
             element={

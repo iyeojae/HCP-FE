@@ -1,6 +1,6 @@
 // src/pages/clubs/ClubsPage.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom"; // ✅ useNavigate 추가
 import "../../styles/clubs/ClubsPage.css";
 import LogoImg from "../../assets/logo2.svg";
 
@@ -45,31 +45,27 @@ function buildCoverUrl(coverUrl) {
   const base = api?.defaults?.baseURL || ""; // ex) https://api.likelionhsu.kr/api
   const origin = base ? base.replace(/\/api\/?$/i, "") : "https://api.likelionhsu.kr";
 
-  // coverUrl이 "/"로 시작하지 않으면 붙여줌
   const path = coverUrl.startsWith("/") ? coverUrl : `/${coverUrl}`;
   return `${origin}${path}`;
 }
 
 export default function ClubsPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate(); // ✅ 추가
 
-  // ✅ status: 없으면 "전체(파라미터 없음)"
   const rawStatus = (searchParams.get("status") || "").toUpperCase().trim();
   const q = (searchParams.get("q") || "").trim();
 
-  // ✅ 허용 status만 통과, 없거나 이상하면 ""(전체)
   const status = useMemo(() => {
     const allowed = new Set(["PRE", "OPEN", "CLOSED", "UNKNOWN"]);
     if (!rawStatus) return "";
     return allowed.has(rawStatus) ? rawStatus : "";
   }, [rawStatus]);
 
-  // ✅ 핵심 규칙: q가 있으면 status는 무조건 무시(전체에서 검색)
   const effectiveStatus = useMemo(() => {
     return q ? "" : status;
   }, [q, status]);
 
-  // ✅ API 연동 상태
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -82,10 +78,6 @@ export default function ClubsPage() {
         setLoading(true);
         setErrorMsg("");
 
-        // ✅ 파라미터 구성 규칙
-        // 1) q가 있으면: status 무시 → { q } 만 전달
-        // 2) q 없고 status 있으면: { status }
-        // 3) 둘 다 없으면: params 없이 호출 → /common/clubs (전체)
         const params = {};
         if (q) params.q = q;
         else if (effectiveStatus) params.status = effectiveStatus;
@@ -109,7 +101,6 @@ export default function ClubsPage() {
           }))
           .filter((s) => (s.clubs || []).length > 0);
 
-        // ✅ 카테고리 순서 반영
         const byKey = new Map(mapped.map((s) => [s.key, s]));
         const ordered = [
           ...CATEGORY_ORDER.filter((k) => byKey.has(k)).map((k) => byKey.get(k)),
@@ -132,7 +123,6 @@ export default function ClubsPage() {
     };
 
     fetchClubs();
-
     return () => {
       alive = false;
     };
@@ -142,11 +132,23 @@ export default function ClubsPage() {
     return sections.reduce((acc, s) => acc + (s.clubs?.length || 0), 0);
   }, [sections]);
 
+  // ✅ 카드 클릭 시 상세로 이동
+  const goDetail = (clubId) => {
+    if (!clubId && clubId !== 0) return;
+    navigate(`/clubs/${clubId}`);
+  };
+
+  // ✅ 키보드(Enter/Space)도 클릭처럼 동작
+  const onCardKeyDown = (e, clubId) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      goDetail(clubId);
+    }
+  };
+
   return (
     <div className="clubs-page">
-      {/* ✅ 상단 표시: 유저 → 서비스 로고로 통일 */}
       <section className="clubs-user" aria-label="서비스 정보">
-        {/* ✅ 로고 클릭 시 시작 화면으로 이동 */}
         <Link to="/" className="clubs-user__avatarLink" aria-label="시작 화면으로 이동">
           <img className="clubs-user__avatar" src={LogoImg} alt="HCP 로고" />
         </Link>
@@ -171,7 +173,15 @@ export default function ClubsPage() {
 
               <div className="clubs-grid" role="list">
                 {section.clubs.map((club) => (
-                  <article key={club.id} className="club-card" role="listitem">
+                  <article
+                    key={club.id}
+                    className="club-card"
+                    role="listitem"
+                    tabIndex={0}                 // ✅ 포커스 가능
+                    onClick={() => goDetail(club.id)} // ✅ 클릭 이동
+                    onKeyDown={(e) => onCardKeyDown(e, club.id)} // ✅ Enter/Space 이동
+                    aria-label={`${club.name} 상세 보기`}
+                  >
                     <div className="club-card__media">
                       {club.imageUrl ? (
                         <img
