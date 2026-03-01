@@ -1,0 +1,268 @@
+/* src/css/club/clubDetail.css */
+
+.clubD-page {
+  width: 100%;
+  min-height: 100dvh;
+  max-width: 30rem; /* ~480px */
+  margin: 0 auto;
+
+  background: radial-gradient(circle at 30% 10%, rgba(140, 120, 255, 0.22), transparent 45%),
+    radial-gradient(circle at 80% 60%, rgba(70, 220, 255, 0.16), transparent 50%),
+    linear-gradient(180deg, #0b0c12 0%, #121225 55%, #0b0c12 100%);
+  color: #fff;
+
+  padding-bottom: calc(1.2rem + env(safe-area-inset-bottom));
+}
+
+.clubD-center {
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+}
+
+.clubD-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+
+  display: grid;
+  grid-template-columns: 3rem 1fr 3rem;
+  align-items: center;
+
+  padding: calc(0.75rem + env(safe-area-inset-top)) 1rem 0.75rem;
+  backdrop-filter: blur(10px);
+  background: rgba(10, 10, 18, 0.35);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.clubD-iconBtn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.clubD-topTitle {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.clubD-topSpacer {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* hero */
+.clubD-heroWrap {
+  padding: 1rem 1rem 0;
+  position: relative;
+}
+
+.clubD-badge {
+  position: absolute;
+  top: 1.4rem;
+  left: 1.25rem;
+  z-index: 2;
+
+  font-size: 0.8rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(255, 230, 80, 0.95);
+  color: #1a1a1a;
+  font-weight: 900;
+}
+
+.clubD-hero {
+  width: 100%;
+  height: clamp(9rem, 22vw, 11.5rem);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.clubD-heroImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.clubD-heroFallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  opacity: 0.75;
+}
+
+/* head */
+.clubD-head {
+  padding: 1rem 1rem 0.5rem;
+}
+
+.clubD-name {
+  font-size: clamp(1.6rem, 5.2vw, 2.15rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.clubD-summary {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  opacity: 0.92;
+  line-height: 1.35;
+}
+
+/* stats */
+.clubD-stats {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem;
+}
+
+.clubD-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.clubD-statVal {
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.clubD-statLab {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.clubD-divider {
+  width: 1px;
+  height: 2.4rem;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* tabs + card */
+.clubD-infoWrap {
+  padding: 0 1rem;
+}
+
+.clubD-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.clubD-tab {
+  padding: 0.9rem 0.2rem;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+
+  border-bottom: 2px solid rgba(127, 240, 255, 0.18);
+}
+
+.clubD-tab.active {
+  color: #7ff0ff;
+  border-bottom-color: rgba(127, 240, 255, 0.7);
+}
+
+.clubD-card {
+  margin: 0.8rem 0 1.25rem;
+  padding: 1.1rem 1rem;
+
+  border-radius: 1.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(10px);
+}
+
+.clubD-cardTitle {
+  font-size: 0.95rem;
+  font-weight: 900;
+  opacity: 0.92;
+  margin-bottom: 0.8rem;
+}
+
+.clubD-cardBody {
+  min-height: 22dvh;
+}
+
+.clubD-pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  opacity: 0.9;
+}
+
+.clubD-empty {
+  opacity: 0.7;
+  font-size: 0.95rem;
+}
+
+/* bottom */
+.clubD-bottom {
+  padding: 0 1rem;
+  margin-top: auto;
+}
+
+.clubD-applyBtn {
+  width: 100%;
+  padding: 1rem 1rem;
+  border-radius: 999px;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+
+  background: linear-gradient(90deg, #7a46ff, #5e82ff);
+  color: #fff;
+  box-shadow: 0 0.6rem 1.4rem rgba(80, 70, 255, 0.28);
+}
+
+.clubD-applyBtn.disabled {
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+.clubD-hint {
+  margin-top: 0.7rem;
+  font-size: 0.9rem;
+  opacity: 0.75;
+  text-align: center;
+}
+
+/* error */
+.clubD-error {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.clubD-btnGhost {
+  padding: 0.9rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-weight: 900;
+}
