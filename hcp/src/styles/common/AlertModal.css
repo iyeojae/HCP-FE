@@ -1,17 +1,28 @@
+/* src/styles/common/AlertModal.css */
+
 .am-overlay {
   position: fixed;
   inset: 0;
 
-  background: rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(clamp(0.35rem, 1.4vw, 0.85rem));
-  -webkit-backdrop-filter: blur(clamp(0.35rem, 1.4vw, 0.85rem));
+  /* ✅ overlay는 '색만' 깔기 (전체화면 backdrop-filter 제거) */
+  background: rgba(0, 0, 0, 0.28);
 
   display: flex;
   align-items: center;
   justify-content: center;
+
   z-index: 2000;
 
+  /* ✅ 스크롤/터치가 뒤로 전달되는 것 방지 */
+  overscroll-behavior: contain;
+  touch-action: none;
+
   animation: amFadeIn 160ms ease-out;
+}
+
+/* ✅ 기존 glass 옵션 유지: 필요하면 overlay 투명도만 조금 조절 */
+.am-overlay.is-glass {
+  background: rgba(0, 0, 0, 0.22);
 }
 
 .am-modal {
@@ -22,6 +33,7 @@
   border: 0.0625rem solid rgba(255, 255, 255, 0.38);
   box-shadow: 0 1.1rem 2.6rem rgba(0, 0, 0, 0.24);
 
+  /* ✅ 블러는 박스에만 */
   backdrop-filter: blur(clamp(0.65rem, 2.4vw, 0.95rem));
   -webkit-backdrop-filter: blur(clamp(0.65rem, 2.4vw, 0.95rem));
 
@@ -62,7 +74,6 @@
   line-height: 1.35;
 }
 
-/* 버튼을 안 쓸 수도 있으니 기존 스타일은 유지 */
 .am-btn {
   margin-top: clamp(0.85rem, 3.2vw, 1rem);
   width: 100%;

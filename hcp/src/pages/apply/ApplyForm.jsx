@@ -26,14 +26,13 @@ const STEPS = [
   { key: "name", title: "이름을 적어주세요.", sub: "지원자님의 이름을 적어주세요." },
   { key: "dept", title: "학과를 적어주세요.", sub: "" },
   { key: "contact", title: "연락처를 적어주세요.", sub: "학번도 적어주세요." },
-  { key: "tech", title: "자신있는 분야 3가지", sub: "최소 3개 선택 가능해요" },
+  { key: "tech", title: "자신있는 분야 3가지", sub: "최대 3개 선택 가능해요 " },
   { key: "part", title: "지원파트가 있을까요?", sub: "원하시는 파트를 선택해주세요" },
   { key: "motivation", title: "지원 계기가 뭔가요?", sub: "" },
 ];
 
+// ✅ Google / Spring Boot 제거
 const TECH_OPTIONS = [
-  "GCP",
-  "Google",
   "Figma",
   "Python",
   "C",
@@ -44,17 +43,13 @@ const TECH_OPTIONS = [
   "Java",
   "MySQL",
   "Adobe Illustrator",
-  "Spring Boot",
   "JS",
 ];
 
 const PART_OPTIONS = ["디자인", "백엔드", "프론트 엔드", "선택 미정"];
 
-// ✅ 라벨 → 아이콘 매핑
-// (Google / Spring Boot 전용 아이콘이 없어서 일단 비슷한 아이콘으로 연결해둠)
+// ✅ 라벨 → 아이콘 매핑 (Google / Spring Boot 제거)
 const TECH_ICON_MAP = {
-  GCP: IconGcp,
-  Google: IconGcp,
   Figma: IconFigma,
   Python: IconPython,
   C: IconC,
@@ -65,8 +60,9 @@ const TECH_ICON_MAP = {
   Java: IconJava,
   MySQL: IconMysql,
   "Adobe Illustrator": IconAdobe,
-  "Spring Boot": IconBackend, // 전용 아이콘 없으면 임시로 backend 사용
   JS: IconJs,
+  // GCP 아이콘은 남겨둠(혹시 read 모드에서 들어오면 extras로 표시될 수 있음)
+  GCP: IconGcp,
 };
 
 const PART_ICON_MAP = {
@@ -139,9 +135,7 @@ function Chip({ active, onClick, disabled, label, iconSrc }) {
       disabled={disabled}
     >
       <span className="apply-chip__iconSlot" aria-hidden="true">
-        {iconSrc ? (
-          <img className="apply-chip__iconImg" src={iconSrc} alt="" aria-hidden="true" />
-        ) : null}
+        {iconSrc ? <img className="apply-chip__iconImg" src={iconSrc} alt="" aria-hidden="true" /> : null}
       </span>
       <span className="apply-chip__label">{label}</span>
     </button>
@@ -158,7 +152,6 @@ export default function ApplyForm({
   onClose, // read에서만
 }) {
   const [step, setStep] = useState(0);
-
   const readOnly = mode === "read";
 
   const selectedTechRaw = useMemo(() => {
@@ -173,6 +166,7 @@ export default function ApplyForm({
   );
 
   const techOptionsUnion = useMemo(() => {
+    // read 모드에서 서버 값이 TECH_OPTIONS에 없으면 extras로 보여주기
     const extras = selectedTechRaw.filter((t) => !TECH_OPTIONS.includes(t));
     return [...TECH_OPTIONS, ...extras];
   }, [selectedTechRaw]);
@@ -190,12 +184,14 @@ export default function ApplyForm({
         return contactDigits.length === 11 && studentNoOk;
       }
 
-      if (s === 3) return selectedTechRaw.length >= 3;
+      // ✅ 변경: tech는 0~3개 모두 통과
+      if (s === 3) return true;
+
       if (s === 4) return !!(value?.applyPart || "").trim();
       if (s === 5) return !!(value?.motivation || "").trim();
       return true;
     };
-  }, [readOnly, value, selectedTechRaw.length]);
+  }, [readOnly, value]);
 
   const canPrev = !loading && step > 0;
   const canNext = !loading && step < STEPS.length - 1 && isStepValid(step);
@@ -213,6 +209,7 @@ export default function ApplyForm({
       return;
     }
 
+    // ✅ 최대 3개 제한 유지
     if (cur.length >= 3) return;
     onChange({ techTags: [...cur, label] });
   };
@@ -328,7 +325,7 @@ export default function ApplyForm({
               </section>
             ) : null}
 
-            {/* 4) 자신있는 분야 3개 */}
+            {/* 4) 자신있는 분야 0~3개 */}
             {step === 3 ? (
               <section className="apply-section" aria-label="자신있는 분야">
                 <div className="apply-chipGrid" role="list">

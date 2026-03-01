@@ -119,7 +119,7 @@ export default function MyPage() {
 
         <ActionRow
           iconSrc={IconIntro}
-          label="소개글 입력"
+          label="동아리 등록 또는 수정"
           onClick={() => navigate("/mypage/intro")}
         />
 

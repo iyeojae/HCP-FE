@@ -4,7 +4,6 @@
   flex-direction: column;
   color: #fff;
 
-  /* AppShell 배경 위에 얹는 컨텐츠라 배경색은 따로 안 깔아도 됨 */
   padding-inline: clamp(1rem, 4vw, 1.25rem);
   padding-block-start: clamp(0.8rem, 3vw, 1rem);
   padding-block-end: calc(clamp(1rem, 4vw, 1.2rem) + env(safe-area-inset-bottom));
@@ -178,18 +177,34 @@
   color: #fff;
   cursor: pointer;
   font-weight: 850;
+
+  /* ✅ 서서히 변화 */
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease,
+    transform 160ms ease;
 }
 
+.apply-chip:active{
+  transform: scale(0.98);
+}
+
+/* ✅ 로고 틀 제거 */
 .apply-chip__iconSlot{
-  inline-size: 1.2rem;
-  block-size: 1.2rem;
-  border-radius: 0.35rem;
-  background: rgba(255,255,255,0.25);
+  inline-size: auto;
+  block-size: auto;
+  border-radius: 0;
+  background: transparent;
 }
 
+/* ✅ 선택 시 색상 변경 + 투명도 + 은은한 글로우 */
 .apply-chip.is-active{
-  background: rgba(255,255,255,0.22);
-  border-color: rgba(255,255,255,0.35);
+  background: rgba(216, 153, 245, 0.72);
+  border-color: rgba(216, 153, 245, 0.95);
+  color: rgba(20, 20, 20, 0.92);
+  box-shadow: 0 0.6rem 1.4rem rgba(216, 153, 245, 0.18);
 }
 
 .apply-chip.is-disabled{
@@ -219,17 +234,32 @@
   background: rgba(255,255,255,0.18);
   color: #fff;
   font-weight: 900;
+
+  /* ✅ 서서히 변화 */
+  transition:
+    background-color 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease,
+    transform 160ms ease;
 }
 
+.apply-partBtn:active{
+  transform: scale(0.99);
+}
+
+/* ✅ svg/이미지 틀 제거 */
 .apply-partBtn__iconSlot{
-  inline-size: 1.35rem;
-  block-size: 1.35rem;
-  border-radius: 0.35rem;
-  background: rgba(255,255,255,0.28);
+  inline-size: auto;
+  block-size: auto;
+  border-radius: 0;
+  background: transparent;
 }
 
+/* ✅ 선택 시 색상 변경 + 투명도 + 은은한 글로우 */
 .apply-partBtn.is-active{
-  background: rgba(255,255,255,0.28);
+  background: rgba(216, 153, 245, 0.72);
+  color: rgba(20, 20, 20, 0.92);
+  box-shadow: 0 0.6rem 1.4rem rgba(216, 153, 245, 0.18);
 }
 
 /* 동기 textarea */
@@ -292,4 +322,16 @@
 .apply-cta.is-active{
   cursor: pointer;
   background: rgba(124, 70, 255, 0.85);
+}
+
+/* ✅ 모션 줄이기 설정 */
+@media (prefers-reduced-motion: reduce){
+  .apply-chip,
+  .apply-partBtn{
+    transition: none;
+  }
+  .apply-chip:active,
+  .apply-partBtn:active{
+    transform: none;
+  }
 }
