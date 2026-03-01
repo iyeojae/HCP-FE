@@ -1,3 +1,5 @@
+/* src/styles/Header.css */
+
 .app-header {
   position: relative;
   z-index: 5;
@@ -251,8 +253,12 @@
   justify-content: center;
   gap: clamp(0.22rem, 0.9vw, 0.34rem);
 
-  transition: transform 180ms ease, background-color 180ms ease,
-    border-color 180ms ease;
+  /* ✅ 부드럽게 */
+  transition:
+    transform 180ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
 }
 
 .header-sideTab__itemBtn:hover {
@@ -263,9 +269,26 @@
   transform: scale(0.97);
 }
 
-.header-sideTab__itemBtn.is-active {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.28);
+.header-sideTab__itemBtn.is-active{
+  background: rgba(216, 153, 245, 0.55);   /* ✅ 더 투명 */
+  border-color: rgba(216, 153, 245, 0.75); /* ✅ 테두리도 약하게 */
+  box-shadow: 0 0.6rem 1.4rem rgba(216,153,245,0.14); /* ✅ 글로우도 약하게 */
+}
+
+/* ✅ active일 때 라벨은 어두운 톤 */
+.header-sideTab__itemBtn.is-active .header-sideTab__itemLabel {
+  color: rgba(20, 20, 20, 0.92);
+}
+
+/* 필요하면 아이콘도 약간 또렷하게 */
+.header-sideTab__itemBtn.is-active .header-sideTab__itemImg {
+  opacity: 0.95;
+}
+
+/* 살짝 “들어오는” 느낌 */
+@keyframes headerTabActiveIn {
+  from { transform: scale(0.985); }
+  to   { transform: scale(1); }
 }
 
 .header-sideTab__itemLabel {
@@ -287,3 +310,4 @@
     font-size: 16px;
   }
 }
+
