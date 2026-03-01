@@ -1,9 +1,10 @@
 // src/pages/mypage/MyPage.jsx
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/mypage/MyPage.css";
 
 import { storage } from "../../utils/storage";
+import api from "../../api/axios";
 
 import IconClubs from "../../assets/mypage/clubs.svg";
 import IconIntro from "../../assets/mypage/intro.svg";
@@ -55,13 +56,12 @@ function ActionRow({ iconSrc, label, onClick, showDot = false }) {
 
 export default function MyPage() {
   const navigate = useNavigate();
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
-  // ✅ B안: 값 없으면 기본값 사용 X → 표시 자체를 숨김
   const adminName = (storage.getAdminName?.() || "").trim();
   const loginId = (storage.getLoginId?.() || "").trim();
   const dept = (storage.getAdminDept?.() || "").trim();
 
-  // ✅ 학번/학과 표시 문자열 구성: 있는 것만 조합
   const studentLine = useMemo(() => {
     const parts = [];
     if (loginId) parts.push(loginId);
@@ -70,6 +70,32 @@ export default function MyPage() {
   }, [loginId, dept]);
 
   const hasNewApplicants = !!storage.getHasNewApplicants?.();
+
+  const handleLogout = async () => {
+    if (logoutLoading) return;
+
+    try {
+      setLogoutLoading(true);
+
+      // ✅ 로그아웃 호출 (보통 POST)
+      await api.post("/auth/logout");
+    } catch (e) {
+      // 서버 로그아웃이 실패해도(토큰 만료 등) 로컬은 정리하고 로그인 화면으로 보냄
+    } finally {
+      // ✅ 로컬 저장값 정리 (프로젝트 storage 구현에 맞게 최대한 안전하게)
+      try {
+        storage.clear?.();
+        storage.clearAll?.();
+        storage.removeToken?.();
+        storage.removeAccessToken?.();
+        storage.removeRefreshToken?.();
+        storage.setHasNewApplicants?.(false);
+      } catch (e) {}
+
+      setLogoutLoading(false);
+      navigate("/admin/login", { replace: true });
+    }
+  };
 
   return (
     <div className="mypage">
@@ -80,10 +106,7 @@ export default function MyPage() {
           </div>
         </div>
 
-        {/* ✅ 이름: 없으면 숨김 */}
         {adminName ? <div className="mypage-name">{adminName}</div> : null}
-
-        {/* ✅ 학번/학과 pill: 둘 다 없으면 숨김 */}
         {studentLine ? <div className="mypage-sub">{studentLine}</div> : null}
       </section>
 
@@ -107,6 +130,18 @@ export default function MyPage() {
           onClick={() => navigate("/mypage/applicants")}
         />
       </section>
+
+      {/* ✅ 하단 로그아웃 */}
+      <div className="mypage-logout">
+        <button
+          type="button"
+          className="mypage-logout__btn"
+          onClick={handleLogout}
+          disabled={logoutLoading}
+        >
+          {logoutLoading ? "로그아웃 중..." : "관리자 로그아웃"}
+        </button>
+      </div>
     </div>
   );
 }

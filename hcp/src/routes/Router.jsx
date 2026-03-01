@@ -1,4 +1,4 @@
-// src/routes/Router.jsx (전체 교체본 - 동아리 상세 라우트 추가 반영)
+// src/routes/Router.jsx (전체 교체본 - 동아리 상세 + 소개글 입력(관리) 페이지 반영)
 import React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
@@ -18,36 +18,18 @@ import AdminRoute from "./AdminRoute";
 
 import MainPage from "../pages/main/MainPage";
 import ClubsPage from "../pages/clubs/ClubsPage";
-import ClubDetail from "../pages/clubs/ClubDetail"; // ✅ 추가
+import ClubDetail from "../pages/clubs/ClubDetail";
 
 import MyPageLocked from "../pages/mypage/MyPageLocked";
 import MyPage from "../pages/mypage/MyPage";
 import ApplicantsPage from "../pages/mypage/ApplicantsPage";
 
+// ✅ 소개글 입력(동아리 글 생성/수정) 페이지
+import IntroEdit from "../pages/mypage/IntroEdit";
+
 // ✅ 지원서 양식/열람 (파일명 단순화)
 import ApplyWrite from "../pages/apply/ApplyWrite";
 import ApplyRead from "../pages/apply/ApplyRead";
-
-function TempPage({ title }) {
-  return (
-    <div style={{ padding: "18px 20px" }}>
-      <div
-        style={{
-          borderRadius: 14,
-          padding: "18px 16px",
-          background: "rgba(255,255,255,0.12)",
-          border: "1px solid rgba(255,255,255,0.18)",
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          color: "#fff",
-          fontWeight: 700,
-        }}
-      >
-        {title} (임시 페이지)
-      </div>
-    </div>
-  );
-}
 
 export default function Router() {
   const location = useLocation();
@@ -100,11 +82,12 @@ export default function Router() {
             }
           />
 
+          {/* ✅ 소개글 입력(관리자만) -> 동아리 글 생성/수정 페이지 */}
           <Route
             path="/mypage/intro"
             element={
               <AdminRoute guestFallbackPath="/mypage/locked">
-                <TempPage title="소개글 입력" />
+                <IntroEdit />
               </AdminRoute>
             }
           />

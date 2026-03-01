@@ -2,12 +2,12 @@
 
 .clubDetail-page {
   width: 100%;
-  min-height: 100%;
-  /* ✅ AppShell 배경을 쓰므로 페이지가 배경을 덮지 않게 */
-  background: transparent;
+  height: 90dvh;          /* ✅ 화면 고정 */
+  overflow: hidden;        /* ✅ 바깥(배경/앱쉘)은 스크롤 안 함 */
+  background: transparent; /* ✅ AppShell 배경 유지 */
 
-  /* AppShell이 폭/정렬을 잡고 있을 가능성이 커서 여기서 강제하지 않음 */
-  padding-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .clubDetail-center {
@@ -16,10 +16,9 @@
   padding: 2rem 1rem;
 }
 
+/* topbar (스크롤 밖) */
 .clubDetail-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
+  flex: 0 0 auto;
 
   display: grid;
   grid-template-columns: 3rem 1fr 3rem;
@@ -55,6 +54,15 @@
   height: 2.5rem;
 }
 
+/* ✅ 동아리 정보 스크롤 영역 */
+.clubDetail-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
 /* hero */
 .clubDetail-heroWrap {
   padding: 1rem 1rem 0;
@@ -75,9 +83,12 @@
   font-weight: 900;
 }
 
+/* 사진 상자: 비율 기반으로 큼직하게 */
 .clubDetail-hero {
   width: 100%;
-  height: clamp(9rem, 22vw, 11.5rem);
+  height: auto;
+  aspect-ratio: 16 / 9; /* 더 크게 원하면 4/3으로 변경 */
+
   border-radius: 1.25rem;
   overflow: hidden;
   border: 0.0625rem solid rgba(255, 255, 255, 0.10);
@@ -224,7 +235,7 @@
 
 /* bottom */
 .clubDetail-bottom {
-  padding: 0 1rem;
+  padding: 0 1rem 1rem;
 }
 
 .clubDetail-apply {

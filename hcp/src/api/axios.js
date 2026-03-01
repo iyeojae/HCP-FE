@@ -3,7 +3,7 @@ import axios from "axios";
 import { storage } from "../utils/storage";
 
 // ✅ .env 없으면 배포 서버로 기본 연결되게
-const DEFAULT_BASE_URL = "https://api.likelionhsu.kr/api";
+const DEFAULT_BASE_URL = "https://api.likelionhsu.kr";
 const BASE_URL = process.env.REACT_APP_API_BASE_URL || DEFAULT_BASE_URL;
 
 const api = axios.create({

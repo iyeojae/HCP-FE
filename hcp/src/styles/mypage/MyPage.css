@@ -172,3 +172,29 @@
 .mypage-action:active{
   transform: translateY(0.05rem);
 }
+
+/* ✅ 하단 고정 느낌(컨텐츠 아래로 밀기) */
+.mypage {
+  min-height: 80dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mypage-logout {
+  margin-top: auto;
+  padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom));
+}
+
+.mypage-logout__btn {
+  width: 100%;
+  padding: 1rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-weight: 900;
+}
+
+.mypage-logout__btn:disabled {
+  opacity: 0.55;
+}
