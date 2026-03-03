@@ -128,7 +128,7 @@ export default function ApplyRead() {
         setLoading(true);
         setErrorMsg("");
 
-        const res = await api.get(`/clubadmin/applications/${applicationId}`);
+        const res = await api.get(`/api/clubadmin/applications/${applicationId}`);
         if (!alive) return;
 
         setData(res?.data || null);

@@ -78,7 +78,7 @@ export default function MyPage() {
       setLogoutLoading(true);
 
       // ✅ 로그아웃 호출 (보통 POST)
-      await api.post("/auth/logout");
+      await api.post("/api/auth/logout");
     } catch (e) {
       // 서버 로그아웃이 실패해도(토큰 만료 등) 로컬은 정리하고 로그인 화면으로 보냄
     } finally {

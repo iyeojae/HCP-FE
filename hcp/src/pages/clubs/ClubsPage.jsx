@@ -82,7 +82,7 @@ export default function ClubsPage() {
         if (q) params.q = q;
         else if (effectiveStatus) params.status = effectiveStatus;
 
-        const res = await api.get("/common/clubs", {
+        const res = await api.get("/api/common/clubs", {
           params: Object.keys(params).length ? params : undefined,
         });
 

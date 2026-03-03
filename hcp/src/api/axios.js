@@ -9,10 +9,11 @@ const BASE_URL = process.env.REACT_APP_API_BASE_URL || DEFAULT_BASE_URL;
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
-  withCredentials: false, // refreshToken을 HttpOnly Cookie로 쓰는 경우에만 필요
+  withCredentials: false,
 });
 
 // ✅ refresh 전용(인터셉터 없는) 클라이언트
+// 쿠키 기반 refresh라면 withCredentials:true 필요
 const refreshClient = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
@@ -46,13 +47,11 @@ function processQueue(error, newAccessToken = null) {
 }
 
 function clearAuthFallback() {
-  // ✅ storage 확장 버전이 있으면 그걸 우선 사용
   if (storage.clearAuth) {
     storage.clearAuth();
     return;
   }
 
-  // ✅ fallback: 프로젝트에서 쓰는 키까지 같이 제거
   localStorage.removeItem("accessToken");
   localStorage.removeItem("user");
   localStorage.removeItem("role");
@@ -80,6 +79,19 @@ function extractAccessToken(res) {
   return token;
 }
 
+/** ✅ public endpoint면 refresh 금지 (안전장치) */
+function isPublicEndpoint(url) {
+  if (!url) return false;
+  // axios config.url은 보통 "/common/..." 이런 형태
+  return url.startsWith("/common") || url.includes("/common/");
+}
+
+/** ✅ 관리자일 때만 refresh 시도 */
+function canAttemptRefresh() {
+  // storage.js에 isAdmin이 있음 (role===ADMIN && token)
+  return !!storage.isAdmin?.();
+}
+
 /**
  * 401 처리 (쿠키 기반 refresh)
  */
@@ -88,7 +100,6 @@ api.interceptors.response.use(
   async (error) => {
     const original = error?.config;
 
-    // 네트워크 에러 등
     if (!error?.response || !original) return Promise.reject(error);
 
     const status = error.response.status;
@@ -97,6 +108,16 @@ api.interceptors.response.use(
     // ✅ refresh 자체가 401이면 더 이상 재시도 금지
     if (url.includes("/auth/refresh")) {
       clearAuthFallback();
+      return Promise.reject(error);
+    }
+
+    // ✅ public endpoint는 refresh 금지
+    if (isPublicEndpoint(url)) {
+      return Promise.reject(error);
+    }
+
+    // ✅ 관리자 아니면 refresh 금지 (비로그인/일반유저)
+    if (!canAttemptRefresh()) {
       return Promise.reject(error);
     }
 

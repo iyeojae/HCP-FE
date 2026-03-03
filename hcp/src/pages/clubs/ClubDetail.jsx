@@ -68,7 +68,7 @@ export default function ClubDetail() {
       try {
         setLoading(true);
         setError("");
-        const res = await api.get(`/common/clubs/${clubId}`);
+        const res = await api.get(`/api/common/clubs/${clubId}`);
         if (!alive) return;
         setClub(res.data);
       } catch (e) {
