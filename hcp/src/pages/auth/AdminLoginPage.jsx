@@ -1,5 +1,5 @@
 // src/pages/auth/AdminLoginPage.jsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../styles/auth/AdminLoginPage.css";
 
@@ -49,78 +49,6 @@ export default function AdminLoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d", { alpha: true });
-    if (!ctx) return;
-
-    const mulberry32 = (seed) => () => {
-      let t = (seed += 0x6d2b79f5);
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-
-    const draw = () => {
-      const parent = canvas.parentElement;
-      if (!parent) return;
-
-      const cssW = parent.clientWidth;
-      const cssH = parent.clientHeight;
-
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.floor(cssW * dpr);
-      canvas.height = Math.floor(cssH * dpr);
-      canvas.style.width = `${cssW}px`;
-      canvas.style.height = `${cssH}px`;
-
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, cssW, cssH);
-
-      const starAreaH = cssH * 0.72;
-      const density = 1 / 9000;
-      const count = Math.max(40, Math.floor(cssW * starAreaH * density));
-
-      const r = mulberry32(12345);
-
-      for (let i = 0; i < count; i++) {
-        const x = r() * cssW;
-        const y = r() * starAreaH;
-
-        const radius = 0.6 + r() * 1.2;
-        const alpha = 0.25 + r() * 0.65;
-
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-        ctx.arc(x, y, radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        if (r() > 0.985) {
-          ctx.beginPath();
-          ctx.fillStyle = `rgba(255,255,255,0.95)`;
-          ctx.arc(x, y, radius * 1.8, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    };
-
-    draw();
-
-    const ro = new ResizeObserver(() => draw());
-    if (canvas.parentElement) ro.observe(canvas.parentElement);
-
-    window.addEventListener("orientationchange", draw);
-
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("orientationchange", draw);
-    };
-  }, []);
-
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -143,15 +71,28 @@ export default function AdminLoginPage() {
     try {
       setSubmitting(true);
 
-      const res = await api.post("/api/auth/login", { loginId: id, password: pw });
+      // ✅ baseURL 기준: /auth/login (중복 /api 제거)
+      const res = await api.post("/auth/login", { loginId: id, password: pw });
       const data = res?.data || {};
 
       storage.clearAuth?.();
 
-      if (data?.accessToken) storage.setAccessToken?.(data.accessToken);
-      if (data?.role) storage.setRole?.(data.role);
-      if (data?.loginId) storage.setLoginId?.(data.loginId);
-      if (data?.userId != null) storage.setUserId?.(data.userId);
+      // ✅ 단일키(hcp.auth)로 바꿨다면 setAuth 사용 가능
+      if (storage.setAuth) {
+        storage.setAuth({
+          accessToken: data?.accessToken || "",
+          role: data?.role || "",
+          loginId: data?.loginId || "",
+          userId: data?.userId ?? null,
+          adminName: data?.adminName || "",
+          adminDept: data?.adminDept || "",
+        });
+      } else {
+        if (data?.accessToken) storage.setAccessToken?.(data.accessToken);
+        if (data?.role) storage.setRole?.(data.role);
+        if (data?.loginId) storage.setLoginId?.(data.loginId);
+        if (data?.userId != null) storage.setUserId?.(data.userId);
+      }
 
       const redirectTo = location.state?.from?.pathname || "/main";
       navigate(redirectTo, { replace: true });
@@ -169,31 +110,6 @@ export default function AdminLoginPage() {
 
   return (
     <div className="admin-login-page">
-      <canvas ref={canvasRef} className="admin-login-stars" aria-hidden="true" />
-
-      <div className="admin-login-mountains" aria-hidden="true">
-        <svg
-          className="admin-login-mountains__svg"
-          viewBox="0 0 430 932"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0,690 C60,640 120,645 175,690 C230,735 290,775 430,720 L430,932 L0,932 Z"
-            fill="#1C2B2A"
-          />
-          <path
-            d="M0,760 C70,700 150,710 220,770 C285,825 330,845 430,810 L430,932 L0,932 Z"
-            fill="#2E6B55"
-            opacity="0.95"
-          />
-          <path
-            d="M0,820 C90,780 190,790 255,840 C315,885 350,900 430,875 L430,932 L0,932 Z"
-            fill="#2B3C33"
-          />
-          <path d="M0,880 L430,880 L430,932 L0,932 Z" fill="#243229" />
-        </svg>
-      </div>
-
       <div className="admin-login-content">
         <div className="admin-login-topIcons" aria-hidden="true">
           <div className="admin-login-topIcons__dot">

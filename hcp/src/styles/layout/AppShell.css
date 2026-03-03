@@ -24,13 +24,20 @@
   pointer-events: none;
 }
 
-/* ✅ 산 */
-.shell-mountains {
+/* ✅ 산: bottom/height를 반응형으로 */
+.shell-mountains{
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
-  height: 56%;
+
+  /* ❌ bottom: -25rem;  */
+  /* ✅ 기기 높이에 따라 내려가는 양이 달라지게 */
+  bottom: clamp(-40dvh, -50dvh, -50dvh);
+
+  /* ❌ height: 90%; */
+  /* ✅ 산이 너무 커져서 잘리지 않게 상한/하한을 둠 */
+  height: clamp(60dvh, 90dvh, 105dvh);
+
   pointer-events: none;
 }
 
