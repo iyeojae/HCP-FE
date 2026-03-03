@@ -203,7 +203,7 @@ export default function ApplicantsPage() {
         setLoading(true);
         setErrorMsg("");
 
-        const res = await api.get("/clubadmin/applications/summary");
+        const res = await api.get("/api/clubadmin/applications/summary");
         const arr = Array.isArray(res?.data) ? res.data : [];
 
         if (alive) setList(arr);

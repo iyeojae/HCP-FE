@@ -143,7 +143,7 @@ export default function AdminLoginPage() {
     try {
       setSubmitting(true);
 
-      const res = await api.post("/auth/login", { loginId: id, password: pw });
+      const res = await api.post("/api/auth/login", { loginId: id, password: pw });
       const data = res?.data || {};
 
       storage.clearAuth?.();
