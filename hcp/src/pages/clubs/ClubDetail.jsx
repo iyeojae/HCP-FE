@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/axios";
 import ClubDetailInfo from "./ClubDetailInfo";
-import "../../styles/clubs/ClubDetail.css"; // ✅ 여기 경로 사용 권장
+import "../../styles/clubs/ClubDetail.css";
 
 const categoryKo = (category) => {
   switch (category) {
@@ -36,9 +36,8 @@ const toImageUrl = (path) => {
     process.env.REACT_APP_API_BASE_URL ||
     "";
 
-  // ✅ /uploads 는 루트 정적경로이므로 baseURL이 .../api 면 /api 제거
+  // /uploads 는 루트 정적경로이므로 baseURL이 .../api 면 /api 제거
   const origin = base ? String(base).replace(/\/api\/?$/i, "") : window.location.origin;
-
   const p = String(path).startsWith("/") ? path : `/${path}`;
   return `${origin}${p}`;
 };
@@ -50,6 +49,21 @@ const dday = (v) => {
   if (n === 0) return "D-Day";
   if (n > 0) return `D-${n}`;
   return `D+${Math.abs(n)}`;
+};
+
+const normalizeName = (s) => String(s || "").replace(/\s/g, "");
+
+const isLikelion = (name) => normalizeName(name).includes("멋쟁이사자처럼");
+
+const toExternalUrl = (raw) => {
+  const s = String(raw || "").trim();
+  if (!s) return "";
+
+  // 이미 http(s)면 그대로
+  if (/^https?:\/\//i.test(s)) return s;
+
+  // 프로토콜 없는 도메인/링크면 https 붙여줌
+  return `https://${s}`;
 };
 
 export default function ClubDetail() {
@@ -68,6 +82,8 @@ export default function ClubDetail() {
       try {
         setLoading(true);
         setError("");
+
+        // ✅ 보통은 /common/clubs/:id
         const res = await api.get(`/api/common/clubs/${clubId}`);
         if (!alive) return;
         setClub(res.data);
@@ -88,14 +104,33 @@ export default function ClubDetail() {
   const imageUrl = useMemo(() => toImageUrl(club?.mainImageUrl), [club]);
   const categoryLabel = useMemo(() => categoryKo(club?.category), [club]);
 
-  const canApply = useMemo(() => {
-    const name = String(club?.name || "").replace(/\s/g, "");
-    return name.includes("멋쟁이사자처럼");
+  const isLikelionClub = useMemo(() => isLikelion(club?.name), [club]);
+
+  // ✅ 추후 백엔드에 필드 생겨도 바로 동작하도록 후보 필드 여러개 지원
+  const externalApplyLink = useMemo(() => {
+    const raw =
+      club?.applyLink || club?.applyUrl || club?.applyFormUrl || club?.recruitLink || "";
+    return toExternalUrl(raw);
   }, [club]);
 
+  const applyBtnDisabled = useMemo(() => {
+    // 멋쟁이 사자처럼은 항상 지원폼 가능
+    if (isLikelionClub) return false;
+
+    // 그 외 동아리는 링크 없으면 비활성
+    return !externalApplyLink;
+  }, [isLikelionClub, externalApplyLink]);
+
   const onApply = () => {
-    if (!canApply) return;
-    navigate("/clubs/apply", { state: { clubId, clubName: club?.name } });
+    if (isLikelionClub) {
+      navigate("/clubs/apply", { state: { clubId, clubName: club?.name } });
+      return;
+    }
+
+    if (!externalApplyLink) return;
+
+    // ✅ 외부 링크로 이동
+    window.open(externalApplyLink, "_blank", "noopener,noreferrer");
   };
 
   if (loading) {
@@ -115,7 +150,6 @@ export default function ClubDetail() {
 
   return (
     <div className="clubDetail-page">
-      {/* 상단바는 고정(스크롤 영역 밖) */}
       <div className="clubDetail-topbar">
         <button className="clubDetail-back" onClick={() => navigate(-1)} aria-label="뒤로가기">
           ←
@@ -124,7 +158,6 @@ export default function ClubDetail() {
         <div className="clubDetail-topSpace" />
       </div>
 
-      {/* ✅ 동아리 정보만 스크롤 */}
       <div className="clubDetail-scroll">
         <div className="clubDetail-heroWrap">
           <div className="clubDetail-badge">{categoryLabel}</div>
@@ -166,17 +199,26 @@ export default function ClubDetail() {
 
         <div className="clubDetail-bottom">
           <button
-            className={`clubDetail-apply ${!canApply ? "disabled" : ""}`}
+            className={`clubDetail-apply ${applyBtnDisabled ? "disabled" : ""}`}
             onClick={onApply}
-            disabled={!canApply}
+            disabled={applyBtnDisabled}
             type="button"
           >
-            지원하러 가기
+            {isLikelionClub ? "지원하러 가기" : "지원 링크로 이동"}
           </button>
 
-          {!canApply && (
+          {/* 안내 문구 */}
+          {isLikelionClub ? (
             <div className="clubDetail-hint">
-              현재는 <b>멋쟁이 사자처럼</b> 동아리만 지원 가능
+              현재는 <b>멋쟁이 사자처럼</b> 동아리만 지원 폼을 제공합니다.
+            </div>
+          ) : !externalApplyLink ? (
+            <div className="clubDetail-hint">
+              아직 <b>지원 링크</b>가 등록되지 않았습니다.
+            </div>
+          ) : (
+            <div className="clubDetail-hint">
+              지원은 <b>외부 링크</b>로 진행됩니다.
             </div>
           )}
         </div>
