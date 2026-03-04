@@ -100,7 +100,7 @@ export default function ApplyWrite() {
         motivation: form.motivation.trim(),
       };
 
-      const res = await api.post("/common/applications", payload);
+      const res = await api.post("/api/common/applications", payload);
       // res.data: { applicationId: ... } 형태면 여기서도 사용 가능
 
       // 성공 후 이동(원하는 흐름에 맞게 수정 가능)
