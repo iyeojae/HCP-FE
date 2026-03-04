@@ -149,7 +149,7 @@ export default function IntroEdit() {
     const q = String(name || "").trim();
     if (!q) return null;
 
-    const res = await api.get("/common/clubs", { params: { q } });
+    const res = await api.get("/api/common/clubs", { params: { q } });
     const groups = Array.isArray(res?.data) ? res.data : [];
     const flat = groups.flatMap((g) => (g?.clubs || []).map((c) => c));
 
@@ -163,7 +163,7 @@ export default function IntroEdit() {
   };
 
   const loadClubDetail = async (id) => {
-    const res = await api.get(`/common/clubs/${id}`);
+    const res = await api.get(`/api/common/clubs/${id}`);
     return res?.data;
   };
 
