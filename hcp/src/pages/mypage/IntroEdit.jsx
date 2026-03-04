@@ -21,6 +21,7 @@ const initForm = {
   category: "RELIGION",
   introduction: "",
   interviewProcess: "",
+  everytimeUrl: "", // ✅ 변경: 대표 링크 필드명
 };
 
 const toNum = (v) => {
@@ -39,6 +40,14 @@ const joinUrl = (base, path) => {
   return `${b}${p}`;
 };
 
+// ✅ 링크 정리(프로토콜 없으면 https:// 붙이기)
+const normalizeLink = (raw) => {
+  const s = String(raw || "").trim();
+  if (!s) return "";
+  if (/^https?:\/\//i.test(s)) return s;
+  return `https://${s}`;
+};
+
 export default function IntroEdit() {
   const [mode, setMode] = useState("CREATE"); // CREATE | EDIT
   const [clubId, setClubId] = useState("");
@@ -48,8 +57,6 @@ export default function IntroEdit() {
 
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
-
-  // ✅ 기존 대표이미지 미리보기(수정 시 불러온 데이터에 mainImageUrl 있으면 보여줌)
   const [existingImageUrl, setExistingImageUrl] = useState("");
 
   const [busy, setBusy] = useState(false);
@@ -81,6 +88,11 @@ export default function IntroEdit() {
     if (!form.name.trim()) return "동아리 이름을 입력하세요.";
     if (!form.summary.trim()) return "한 줄 소개를 입력하세요.";
     if (!form.category) return "카테고리를 선택하세요.";
+
+    if (form.everytimeUrl.trim()) {
+      const url = normalizeLink(form.everytimeUrl);
+      if (!/^https?:\/\/.+/i.test(url)) return "대표 링크 형식이 올바르지 않습니다.";
+    }
     return "";
   };
 
@@ -93,13 +105,23 @@ export default function IntroEdit() {
       category: form.category,
       introduction: form.introduction,
       interviewProcess: form.interviewProcess,
+
+      // ✅ 서버 스펙: everytimeUrl
+      everytimeUrl: form.everytimeUrl.trim() ? normalizeLink(form.everytimeUrl) : null,
     }),
     [form]
   );
 
   const fillFromData = (data) => {
-    // common GET 응답 기준: name, summary, category, introduction, interviewProcess, mainImageUrl
-    // (recruitStartAt/EndAt는 common에서 안 올 수 있음)
+    // ✅ 서버 스펙: everytimeUrl (혹시 과거 필드가 남아있을 수 있어 fallback도 포함)
+    const link =
+      data?.everytimeUrl ??
+      data?.applyLink ??
+      data?.applyUrl ??
+      data?.applyFormUrl ??
+      data?.recruitLink ??
+      "";
+
     setForm((p) => ({
       ...p,
       name: data?.name ?? p.name,
@@ -109,6 +131,7 @@ export default function IntroEdit() {
       interviewProcess: data?.interviewProcess ?? p.interviewProcess,
       recruitStartAt: data?.recruitStartAt ?? p.recruitStartAt,
       recruitEndAt: data?.recruitEndAt ?? p.recruitEndAt,
+      everytimeUrl: link ? String(link) : p.everytimeUrl,
     }));
 
     const base =
@@ -116,7 +139,7 @@ export default function IntroEdit() {
       process.env.REACT_APP_API_URL ||
       process.env.REACT_APP_API_BASE_URL ||
       "";
-    // common 상세 응답이 mainImageUrl을 준다고 했었음
+
     const img = joinUrl(base, data?.mainImageUrl);
     setExistingImageUrl(img || "");
   };
@@ -126,28 +149,24 @@ export default function IntroEdit() {
     const q = String(name || "").trim();
     if (!q) return null;
 
-    const res = await api.get("/api/common/clubs", { params: { q } });
+    const res = await api.get("/common/clubs", { params: { q } });
     const groups = Array.isArray(res?.data) ? res.data : [];
     const flat = groups.flatMap((g) => (g?.clubs || []).map((c) => c));
 
-    // 1) 정확히 일치
     const exact = flat.find((c) => norm(c?.name) === norm(q));
     if (exact?.clubId) return exact.clubId;
 
-    // 2) 포함(부분일치) 첫번째
     const partial = flat.find((c) => norm(c?.name).includes(norm(q)));
     if (partial?.clubId) return partial.clubId;
 
     return null;
   };
 
-  // ✅ 상세 불러오기: GET /common/clubs/{id}
   const loadClubDetail = async (id) => {
-    const res = await api.get(`/api/common/clubs/${id}`);
+    const res = await api.get(`/common/clubs/${id}`);
     return res?.data;
   };
 
-  // ✅ 수정 탭: 입력한 동아리명(또는 clubId)로 기존 데이터 채우기
   const loadForEdit = async () => {
     try {
       setBusy(true);
@@ -156,7 +175,6 @@ export default function IntroEdit() {
       let id = clubIdNum;
 
       if (!id) {
-        // clubId 없으면 "동아리명"으로 검색해서 id 찾기
         id = await findClubIdByName(form.name);
         if (!id) {
           setMsg("해당 이름의 동아리를 찾지 못했습니다. (동아리명을 정확히 입력)");
@@ -193,7 +211,7 @@ export default function IntroEdit() {
       setBusy(true);
       setMsg("");
 
-      const res = await api.post("/api/clubadmin/clubs", payload);
+      const res = await api.post("/clubadmin/clubs", payload);
       const id = res?.data?.clubId;
 
       if (id === undefined || id === null) {
@@ -224,7 +242,7 @@ export default function IntroEdit() {
       setBusy(true);
       setMsg("");
 
-      await api.put(`/api/clubadmin/clubs/${clubIdNum}`, payload);
+      await api.put(`/clubadmin/clubs/${clubIdNum}`, payload);
       setMsg(`✅ 수정 완료! clubId=${clubIdNum}`);
     } catch (e) {
       setMsg(
@@ -249,7 +267,7 @@ export default function IntroEdit() {
       const fd = new FormData();
       fd.append("mainImage", file);
 
-      await api.post("/api/clubadmin/clubs", fd, {
+      await api.post("/clubadmin/clubs", fd, {
         params: { clubId: clubIdNum },
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -278,7 +296,7 @@ export default function IntroEdit() {
       const fd = new FormData();
       fd.append("mainImage", file);
 
-      await api.put("/api/clubadmin/clubs/main-image", fd, {
+      await api.put("/clubadmin/clubs/main-image", fd, {
         params: { clubId: clubIdNum },
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -340,7 +358,11 @@ export default function IntroEdit() {
             className="introEdit__input"
             value={clubId}
             onChange={(e) => setClubId(e.target.value)}
-            placeholder={mode === "CREATE" ? "생성 후 자동으로 채워짐" : "비워도 됨(이름으로 불러오기 가능)"}
+            placeholder={
+              mode === "CREATE"
+                ? "생성 후 자동으로 채워짐"
+                : "비워도 됨(이름으로 불러오기 가능)"
+            }
             inputMode="numeric"
           />
         </div>
@@ -378,6 +400,19 @@ export default function IntroEdit() {
               value={form.summary}
               onChange={setField("summary")}
               placeholder="예) 안녕하세요 아기사자 모집중입니다!"
+            />
+          </div>
+
+          {/* ✅ 대표 링크 (everytimeUrl) */}
+          <div className="introEdit__row">
+            <label className="introEdit__label">대표 링크(에브리타임)</label>
+            <input
+              className="introEdit__input"
+              value={form.everytimeUrl}
+              onChange={setField("everytimeUrl")}
+              placeholder="예) https://everytime.kr/xxxxx (없으면 비워두기)"
+              inputMode="url"
+              autoComplete="off"
             />
           </div>
 

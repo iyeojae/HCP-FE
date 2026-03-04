@@ -36,7 +36,6 @@ const toImageUrl = (path) => {
     process.env.REACT_APP_API_BASE_URL ||
     "";
 
-  // /uploads 는 루트 정적경로이므로 baseURL이 .../api 면 /api 제거
   const origin = base ? String(base).replace(/\/api\/?$/i, "") : window.location.origin;
   const p = String(path).startsWith("/") ? path : `/${path}`;
   return `${origin}${p}`;
@@ -52,17 +51,12 @@ const dday = (v) => {
 };
 
 const normalizeName = (s) => String(s || "").replace(/\s/g, "");
-
 const isLikelion = (name) => normalizeName(name).includes("멋쟁이사자처럼");
 
 const toExternalUrl = (raw) => {
   const s = String(raw || "").trim();
   if (!s) return "";
-
-  // 이미 http(s)면 그대로
   if (/^https?:\/\//i.test(s)) return s;
-
-  // 프로토콜 없는 도메인/링크면 https 붙여줌
   return `https://${s}`;
 };
 
@@ -82,8 +76,6 @@ export default function ClubDetail() {
       try {
         setLoading(true);
         setError("");
-
-        // ✅ 보통은 /common/clubs/:id
         const res = await api.get(`/api/common/clubs/${clubId}`);
         if (!alive) return;
         setClub(res.data);
@@ -106,36 +98,24 @@ export default function ClubDetail() {
 
   const isLikelionClub = useMemo(() => isLikelion(club?.name), [club]);
 
-  // ✅ 추후 백엔드에 필드 생겨도 바로 동작하도록 후보 필드 여러개 지원
-  const externalApplyLink = useMemo(() => {
-    const raw =
-      club?.applyLink || club?.applyUrl || club?.applyFormUrl || club?.recruitLink || "";
-    return toExternalUrl(raw);
-  }, [club]);
+  // ✅ 새 필드: everytimeUrl
+  const externalEverytimeUrl = useMemo(() => toExternalUrl(club?.everytimeUrl), [club]);
 
   const applyBtnDisabled = useMemo(() => {
-    // 멋쟁이 사자처럼은 항상 지원폼 가능
     if (isLikelionClub) return false;
-
-    // 그 외 동아리는 링크 없으면 비활성
-    return !externalApplyLink;
-  }, [isLikelionClub, externalApplyLink]);
+    return !externalEverytimeUrl;
+  }, [isLikelionClub, externalEverytimeUrl]);
 
   const onApply = () => {
     if (isLikelionClub) {
       navigate("/clubs/apply", { state: { clubId, clubName: club?.name } });
       return;
     }
-
-    if (!externalApplyLink) return;
-
-    // ✅ 외부 링크로 이동
-    window.open(externalApplyLink, "_blank", "noopener,noreferrer");
+    if (!externalEverytimeUrl) return;
+    window.open(externalEverytimeUrl, "_blank", "noopener,noreferrer");
   };
 
-  if (loading) {
-    return <div className="clubDetail-page clubDetail-center">불러오는 중...</div>;
-  }
+  if (loading) return <div className="clubDetail-page clubDetail-center">불러오는 중...</div>;
 
   if (error || !club) {
     return (
@@ -204,21 +184,20 @@ export default function ClubDetail() {
             disabled={applyBtnDisabled}
             type="button"
           >
-            {isLikelionClub ? "지원하러 가기" : "지원 링크로 이동"}
+            {isLikelionClub ? "지원하러 가기" : "에브리타임 링크로 이동"}
           </button>
 
-          {/* 안내 문구 */}
           {isLikelionClub ? (
             <div className="clubDetail-hint">
               현재는 <b>멋쟁이 사자처럼</b> 동아리만 지원 폼을 제공합니다.
             </div>
-          ) : !externalApplyLink ? (
+          ) : !externalEverytimeUrl ? (
             <div className="clubDetail-hint">
-              아직 <b>지원 링크</b>가 등록되지 않았습니다.
+              아직 <b>에브리타임 링크</b>가 등록되지 않았습니다.
             </div>
           ) : (
             <div className="clubDetail-hint">
-              지원은 <b>외부 링크</b>로 진행됩니다.
+              지원은 <b>에브리타임 링크</b>로 진행됩니다.
             </div>
           )}
         </div>
