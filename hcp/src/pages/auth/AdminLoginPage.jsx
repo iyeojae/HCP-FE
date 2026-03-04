@@ -72,7 +72,7 @@ export default function AdminLoginPage() {
       setSubmitting(true);
 
       // ✅ baseURL 기준: /auth/login (중복 /api 제거)
-      const res = await api.post("/auth/login", { loginId: id, password: pw });
+      const res = await api.post("/api/auth/login", { loginId: id, password: pw });
       const data = res?.data || {};
 
       storage.clearAuth?.();
