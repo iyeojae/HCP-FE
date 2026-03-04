@@ -211,7 +211,7 @@ export default function IntroEdit() {
       setBusy(true);
       setMsg("");
 
-      const res = await api.post("/clubadmin/clubs", payload);
+      const res = await api.post("/api/clubadmin/clubs", payload);
       const id = res?.data?.clubId;
 
       if (id === undefined || id === null) {
@@ -242,7 +242,7 @@ export default function IntroEdit() {
       setBusy(true);
       setMsg("");
 
-      await api.put(`/clubadmin/clubs/${clubIdNum}`, payload);
+      await api.put(`/api/clubadmin/clubs/${clubIdNum}`, payload);
       setMsg(`✅ 수정 완료! clubId=${clubIdNum}`);
     } catch (e) {
       setMsg(
@@ -267,7 +267,7 @@ export default function IntroEdit() {
       const fd = new FormData();
       fd.append("mainImage", file);
 
-      await api.post("/clubadmin/clubs", fd, {
+      await api.post("/api/clubadmin/clubs", fd, {
         params: { clubId: clubIdNum },
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -296,7 +296,7 @@ export default function IntroEdit() {
       const fd = new FormData();
       fd.append("mainImage", file);
 
-      await api.put("/clubadmin/clubs/main-image", fd, {
+      await api.put("/api/clubadmin/clubs/main-image", fd, {
         params: { clubId: clubIdNum },
         headers: { "Content-Type": "multipart/form-data" },
       });
