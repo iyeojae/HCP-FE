@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import "../../styles/main/MainPage.css";
-import AlertModal from "../../components/common/AlertModal";
 
 export default function MainPage() {
   // ✅ 상시 표시 (개발자가 나중에 false로 바꾸면 됨)
@@ -28,14 +27,7 @@ export default function MainPage() {
         />
       </div>
 
-      <AlertModal
-        open={modalOpen}
-        variant="glass"
-        showIcon
-        hideButton      // ✅ 버튼 제거
-        lock            // ✅ overlay 클릭으로 닫히지 않게
-        title={title}
-      />
+      
     </>
   );
 }
