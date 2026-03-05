@@ -1,5 +1,5 @@
 // src/components/AppShell.jsx
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import "../styles/layout/AppShell.css";
 
@@ -12,6 +12,11 @@ import nav3 from "../assets/nav/nav3.svg";
 
 import { storage } from "../utils/storage";
 
+/** ✅ 전역 로더 추가 */
+import GlobalLoaderOverlay from "./common/GlobalLoaderOverlay";
+import { globalLoaderStore } from "../utils/globalLoaderStore";
+import { useTrackImagesInElement } from "../hooks/useTrackImagesInElement";
+
 export default function AppShell({ showHeader = true, showMenu = true }) {
   const canvasRef = useRef(null);
   const location = useLocation();
@@ -22,6 +27,16 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
   // ✅ 비관리자 + 마이페이지면 스크롤 잠금
   const isMyPage = location.pathname.startsWith("/mypage");
   const lockMyPageScroll = isMyPage && !isAdmin;
+
+  /** ✅ 전역 API pending 구독 */
+  const [pendingApi, setPendingApi] = useState(globalLoaderStore.get());
+  useEffect(() => globalLoaderStore.subscribe(setPendingApi), []);
+
+  /** ✅ 현재 페이지(.shell-main) 내부 이미지 로딩 추적 */
+  const pendingImgs = useTrackImagesInElement(".shell-main");
+
+  /** ✅ 로더 표시 조건: API or 이미지 로딩 중 */
+  const loaderOpen = pendingApi > 0 || pendingImgs > 0;
 
   /**
    * ✅ 요구사항 반영
@@ -124,6 +139,9 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
 
   return (
     <div className={shellClassName}>
+      {/* ✅ 전역 로더 오버레이(모든 페이지 공통) */}
+      <GlobalLoaderOverlay open={loaderOpen} />
+
       <canvas ref={canvasRef} className="shell-stars" aria-hidden="true" />
 
       <div className="shell-mountains" aria-hidden="true">
