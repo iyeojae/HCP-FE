@@ -63,11 +63,21 @@
   );
 }
 
-/* ✅ Outlet이 들어가는 영역: 여기 높이가 고정되어야 페이지 내부 스크롤이 성립 */
+/* ✅ Outlet이 들어가는 영역: 여기만 스크롤 가능하게 */
 .shell-main {
   flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden; /* 페이지가 각자 내부 스크롤을 갖도록 */
+  max-height: 92.8%;
+
+  /* ✅ 메인(Outlet)만 스크롤 */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* ✅ 모바일 스크롤 */
+  -webkit-overflow-scrolling: touch;
+
+  /* ✅ 스크롤 바운스가 배경까지 전파되는 것 방지 */
+  overscroll-behavior: contain;
 }
 
 /* ✅ 메뉴를 숨긴 화면(관리자 로그인 등)에서는 아래 공간을 비우지 않기 */

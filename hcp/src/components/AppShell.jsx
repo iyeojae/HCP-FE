@@ -1,6 +1,6 @@
 // src/components/AppShell.jsx
 import React, { useEffect, useMemo, useRef } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import "../styles/layout/AppShell.css";
 
 import Header from "./Header";
@@ -14,9 +14,14 @@ import { storage } from "../utils/storage";
 
 export default function AppShell({ showHeader = true, showMenu = true }) {
   const canvasRef = useRef(null);
+  const location = useLocation();
 
   // ✅ 렌더 시점에 읽기
   const isAdmin = storage.isAdmin?.() || false;
+
+  // ✅ 비관리자 + 마이페이지면 스크롤 잠금
+  const isMyPage = location.pathname.startsWith("/mypage");
+  const lockMyPageScroll = isMyPage && !isAdmin;
 
   /**
    * ✅ 요구사항 반영
@@ -109,12 +114,24 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
     };
   }, []);
 
+  const shellClassName = [
+    "app-shell",
+    showMenu ? "" : "app-shell--noMenu",
+    lockMyPageScroll ? "app-shell--lockMyPageScroll" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <div className={`app-shell ${showMenu ? "" : "app-shell--noMenu"}`}>
+    <div className={shellClassName}>
       <canvas ref={canvasRef} className="shell-stars" aria-hidden="true" />
 
       <div className="shell-mountains" aria-hidden="true">
-        <svg className="shell-mountains__svg" viewBox="0 0 430 932" preserveAspectRatio="none">
+        <svg
+          className="shell-mountains__svg"
+          viewBox="0 0 430 932"
+          preserveAspectRatio="none"
+        >
           <path
             d="M431.252 6.06578C475.286 -17.5493 470.568 33.4572 462.705 61.9123L431.252 539L-99.0898 547.776C59.3427 377.046 387.217 29.6809 431.252 6.06578Z"
             fill="#28392F"

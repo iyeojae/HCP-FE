@@ -166,7 +166,7 @@
 /* 아래 뒤로가기 */
 .admin-login-back{
   margin-top: auto;
-  margin-bottom: clamp(1.6rem, 6vh, 3rem);
+  margin-bottom: clamp(2rem, 8vh, 5rem);
 
   appearance: none;
   border: none;
@@ -183,4 +183,8 @@
 /* iOS 입력 확대 방지 */
 @supports (-webkit-touch-callout: none) {
   .admin-field__input{ font-size: 16px; }
+}
+
+.app-shell--lockMyPageScroll .shell-main {
+  overflow: hidden;
 }

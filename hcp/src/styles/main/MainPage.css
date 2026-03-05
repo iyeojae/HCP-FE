@@ -214,7 +214,7 @@
 }
 
 .main-clubCard__imgWrap {
-  aspect-ratio: 1.35 / 1;
+  width: 100%;
   border-radius: clamp(0.7rem, 3vw, 0.9rem);
   overflow: hidden;
   background: rgba(255, 255, 255, 0.08);
@@ -222,8 +222,9 @@
 
 .main-clubCard__img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  max-height: 45dvh;     /* ✅ 화면 기준으로 과도한 세로 폭주 방지 */
+  object-fit: contain;
   display: block;
 }
 
@@ -260,7 +261,7 @@
 
 /* 단일 이미지 컨테이너 */
 .main-clubCard__singleImage {
-  width: 100%;
+  width: 80%;
 }
 
 /* ===== 오오라 애니메이션: "정보가 떠 있는" 선택 부스만 ===== */

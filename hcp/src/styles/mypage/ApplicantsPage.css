@@ -13,7 +13,7 @@
 .applicants-shell{
   inline-size: 100%;
   max-inline-size: min(26rem, 100%);
-  block-size: clamp(34rem, 62dvh, 48rem);
+  block-size: clamp(30rem, 62dvh, 48rem);
 
   border-radius: clamp(1rem, 4vw, 1.2rem);
   border: 0.12rem solid rgba(255,255,255,0.8);
