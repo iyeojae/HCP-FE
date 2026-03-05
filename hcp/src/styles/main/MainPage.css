@@ -136,9 +136,6 @@
 }
 
 /* ===================== ✅ 부스 위치(세부조정은 여기서!) ===================== */
-/* 🔥 너가 “각각의 부스 위치를 세부조정” 하고 싶은 부분은 아래 pos- 클래스들이야.
-   left/top/right/bottom 값만 살짝씩 바꾸면 지도에서 위치가 움직임. */
-
 .pos-booth-1 { left: 8%; top: 24.5%; }
 .pos-booth-2 { left: 16.5%; top: 18%; }
 .pos-booth-3 { left: 28%; top: 13%; }
@@ -244,8 +241,11 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+/* =========================================================
+   ✅ 아래부터는 "추가"만 (기존 수치/위치/크기 값 수정 없음)
+   ========================================================= */
 
-/* ✅ 메시지 표시용(수치/위치 값 수정 없음) */
+/* 메시지 표시용 */
 .main-clubCard__messageWrap {
   display: grid;
   place-items: center;
@@ -256,4 +256,49 @@
   margin: 0;
   color: white;
   font-weight: bold;
+}
+
+/* 단일 이미지 컨테이너 */
+.main-clubCard__singleImage {
+  width: 100%;
+}
+
+/* ===== 오오라 애니메이션: "정보가 떠 있는" 선택 부스만 ===== */
+.main-mapIconBtn.is-glow {
+  isolation: isolate;
+}
+
+.main-mapIconBtn.is-glow::after {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  border-radius: 999rem;
+  margin-top: 1rem;
+  pointer-events: none;
+  z-index: -1;
+
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.30) 0%,
+    rgba(216, 153, 245, 0.22) 35%,
+    rgba(216, 153, 245, 0.00) 70%
+  );
+
+  filter: blur(0.35rem);
+  opacity: 0.55;
+  transform: scale(0.9);
+
+  animation: mainBoothAura 1.55s ease-in-out infinite;
+}
+
+@keyframes mainBoothAura {
+  0% { opacity: 0.35; transform: scale(0.88); }
+  50% { opacity: 0.70; transform: scale(1.08); }
+  100% { opacity: 0.35; transform: scale(0.88); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-mapIconBtn.is-glow::after {
+    animation: none;
+  }
 }
