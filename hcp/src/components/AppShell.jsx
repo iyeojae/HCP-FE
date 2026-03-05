@@ -140,7 +140,7 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
   return (
     <div className={shellClassName}>
       {/* ✅ 전역 로더 오버레이(모든 페이지 공통) */}
-      <GlobalLoaderOverlay open={loaderOpen} />
+      <GlobalLoaderOverlay open={loaderOpen} minDurationMs={1000}/>
 
       <canvas ref={canvasRef} className="shell-stars" aria-hidden="true" />
 
