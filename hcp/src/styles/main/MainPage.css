@@ -1,14 +1,172 @@
+/* src/styles/main/MainPage.css */
+
+.main-page {
+  width: 100%;
+  min-height: 100%;
+}
+
 .main-page-content {
-  padding: clamp(1rem, 4vw, 1.25rem) clamp(1.1rem, 4.5vw, 1.35rem) 0;
+  padding: clamp(0.8rem, 3.2vw, 1rem) clamp(0.55rem, 2.4vw, 0.8rem) 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: clamp(0.8rem, 3vw, 1rem);
+}
+
+/* ===================== 지도 패널 ===================== */
+.main-mapPanel {
+  width: 100%;
+  display: flex;
   justify-content: center;
 }
 
-/* ✅ 중앙 반투명 사각형 영역 */
-.main-center-panel {
-  width: min(22.5rem, calc(100% - clamp(2.2rem, 8vw, 2.8rem)));
-  height: 50dvh;
+/* 바깥 지도 상자 */
+.main-mapFrame {
+  width: min(92vw, 23rem);
+  border-radius: clamp(3rem, 4vw, 1.15rem);
+
+  background: rgba(255, 255, 255, 0.12);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.18);
+
+  backdrop-filter: blur(clamp(0.65rem, 2.6vw, 0.9rem));
+  -webkit-backdrop-filter: blur(clamp(0.65rem, 2.6vw, 0.9rem));
+
+  padding: 0;
+  opacity: 0.95;
+  overflow: hidden;
+}
+
+/* 실제 지도 영역 */
+.main-mapInner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 0.88 / 1;
+  border-radius: 0;
+  overflow: hidden;
+  
+}
+
+/* ===================== SVG: 건물/구역 ===================== */
+.main-buildingSvg {
+  position: absolute;
+  z-index: 1;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.main-buildingSvg--openStage {
+  left: 2%;
+  top: 2%;
+  width: 28%;
+}
+
+.main-buildingSvg--studentHall {
+  left: 32%;
+  top: 1.2%;
+  width: 36%;
+}
+
+.main-buildingSvg--archHall {
+  right: -3%;
+  top: -3%;
+  width: 27%;
+}
+
+/* ===================== 버튼(부스/트럭) 공통 ===================== */
+.main-mapIconBtn {
+  position: absolute;
+  z-index: 3;
+
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  /* ✅ 기본 부스 크기(전부 동일) */
+  width: clamp(3rem, 7.4vw, 2.4rem);
+  height: clamp(1.85rem, 7.4vw, 2.4rem);
+
+  display: grid;
+  place-items: center;
+
+  transition: transform 180ms ease, filter 180ms ease, opacity 180ms ease;
+}
+
+.main-mapIconBtn:active {
+  transform: scale(0.96);
+}
+
+.main-mapIconBtn.is-active {
+  filter: drop-shadow(0 0.6rem 1.4rem rgba(216, 153, 245, 0.18));
+}
+
+.main-mapIconBtn:focus-visible {
+  outline: 0.12rem solid rgba(216, 153, 245, 0.72);
+  outline-offset: 0.18rem;
+  border-radius: 0.5rem;
+}
+
+/* ✅ 10번 부스만 크게 */
+.main-mapIconBtn.is-booth10 {
+  width: clamp(5rem, 8.6vw, 2.8rem);
+  height: clamp(2.15rem, 8.6vw, 2.8rem);
+}
+
+/* ===================== SVG 아이콘 ===================== */
+.main-mapIconSvg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.main-mapIconSvg--booth {
+  transform: translateZ(0);
+}
+
+.main-mapIconSvg--truck {
+  transform: translateZ(0);
+}
+
+/* ===================== ✅ 부스 위치(세부조정은 여기서!) ===================== */
+/* 🔥 너가 “각각의 부스 위치를 세부조정” 하고 싶은 부분은 아래 pos- 클래스들이야.
+   left/top/right/bottom 값만 살짝씩 바꾸면 지도에서 위치가 움직임. */
+
+.pos-booth-1 { left: 8%; top: 24.5%; }
+.pos-booth-2 { left: 16.5%; top: 18%; }
+.pos-booth-3 { left: 28%; top: 13%; }
+.pos-booth-4 { left: 39%; top: 13%; }
+.pos-booth-5 { left: 58.5%; top: 15%; }
+.pos-booth-6 { left: 69%; top: 15%; }
+
+.pos-booth-7 { left: 2.2%; top: 36%; }
+.pos-booth-8 { left: 2.2%; top: 46%; }
+.pos-booth-9 { left: 2.2%; top: 61%; }
+.pos-booth-10 { left: 30.5%; top: 82.5%; }
+
+/* 푸드트럭 위치(세부조정) */
+.pos-truck-1 { right: 3.8%; top: 30%; }
+.pos-truck-2 { right: 3.8%; top: 41%; }
+.pos-truck-3 { right: 3.8%; top: 52%; }
+
+/* ✅ 추가: "푸드트럭(=10번 오른쪽 영역) 아래" 3개 부스 (세부조정) */
+.pos-truckAreaBooth-1 { right: 30%; top: 86.5%; }
+.pos-truckAreaBooth-2 { right: 12%; top: 74.5%; }
+.pos-truckAreaBooth-3 { right: 20%; top: 86.2%; }
+
+/* ✅ 추가: 9번 부스 아래 1개 (세부조정) */
+.pos-booth-9-sub-1 { left: 2.2%; top: 71%; }
+
+/* ===================== 하단 카드 ===================== */
+.main-clubCard {
+  width: 100%;
   border-radius: clamp(1rem, 4vw, 1.15rem);
 
   background: rgba(255, 255, 255, 0.12);
@@ -17,12 +175,85 @@
   backdrop-filter: blur(clamp(0.65rem, 2.6vw, 0.9rem));
   -webkit-backdrop-filter: blur(clamp(0.65rem, 2.6vw, 0.9rem));
 
-  opacity: 0.6;
+  padding: clamp(0.8rem, 3vw, 1rem);
+  opacity: 0.95;
 }
 
-/* ✅ 모달이 떠있을 때: 회색 박스만 더 흐릿하게 */
-.main-center-panel.is-blurred {
-  filter: blur(clamp(0.35rem, 1.6vw, 0.7rem));
-  opacity: 0.35;
-  transform: scale(0.995);
+.main-clubCard__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  margin-bottom: clamp(0.7rem, 2.8vw, 0.9rem);
+}
+
+.main-clubCard__title {
+  font-size: clamp(1.05rem, 4vw, 1.35rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.main-clubCard__tag {
+  flex: 0 0 auto;
+  min-width: clamp(2.3rem, 10vw, 2.8rem);
+  height: clamp(1.6rem, 6vw, 1.9rem);
+  padding: 0 clamp(0.45rem, 2vw, 0.6rem);
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 999rem;
+  background: rgba(101, 242, 78, 0.9);
+  color: rgba(17, 17, 17, 0.9);
+  font-size: clamp(0.7rem, 2.7vw, 0.82rem);
+  font-weight: 900;
+}
+
+.main-clubCard__images {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.45rem, 1.8vw, 0.65rem);
+}
+
+.main-clubCard__imgWrap {
+  aspect-ratio: 1.35 / 1;
+  border-radius: clamp(0.7rem, 3vw, 0.9rem);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.main-clubCard__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.main-clubCard__imgPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.1);
+  border-radius: inherit;
+}
+
+.main-clubCard__img.is-svg {
+  object-fit: contain;
+  padding: clamp(0.35rem, 1.6vw, 0.55rem);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+
+/* ✅ 메시지 표시용(수치/위치 값 수정 없음) */
+.main-clubCard__messageWrap {
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.main-clubCard__message {
+  margin: 0;
+  color: white;
+  font-weight: bold;
 }
