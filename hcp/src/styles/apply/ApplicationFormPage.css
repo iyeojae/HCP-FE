@@ -297,12 +297,11 @@
   color: rgba(200, 255, 220, 0.95);
 }
 
-/* 하단 CTA */
 .apply-footer{
-  inline-size: 100%;
-  display: grid;
-  place-items: center;
-  padding-block-start: clamp(0.8rem, 3vw, 1rem);
+  position: sticky;
+  bottom: clamp(0.9rem, 3.2vw, 1.2rem); /* ✅ 아래에서 이만큼 띄워서 위로 */
+  padding-block-start: 0;               /* 기존 위 패딩은 필요 없으면 제거 */
+  z-index: 5;
 }
 
 .apply-cta{
