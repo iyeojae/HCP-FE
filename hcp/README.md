@@ -20,8 +20,8 @@ Backend: 자바, 스프링
 
 👥 팀 소개
 
-개발 및 프로젝트 총괄 : iyeojae
-프론트엔드 : Hyeong Seok
+개발 및 프로젝트 총괄 : iyeojae <br/>
+프론트엔드 : Hyeong Seok <br/>
 백엔드 : Chan Woo
 
 📎 기타
