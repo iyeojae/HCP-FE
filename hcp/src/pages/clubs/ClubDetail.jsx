@@ -42,12 +42,15 @@ const toImageUrl = (path) => {
 };
 
 const dday = (v) => {
-  if (v === null || v === undefined) return "null";
+  if (v === null || v === undefined) return "-";
   const n = Number(v);
   if (Number.isNaN(n)) return String(v);
+
   if (n === 0) return "D-Day";
   if (n > 0) return `D-${n}`;
-  return `D+${Math.abs(n)}`;
+
+  // ✅ D-day 지난 경우
+  return "지원 마감";
 };
 
 const normalizeName = (s) => String(s || "").replace(/\s/g, "");
