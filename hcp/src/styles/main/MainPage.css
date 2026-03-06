@@ -303,3 +303,63 @@
     animation: none;
   }
 }
+
+/* ====== 하단 카드: 소개글 + 마감 ====== */
+.main-clubCard__detailRow{
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(0.75rem, 3vw, 0.95rem);
+}
+
+.main-clubCard__thumb{
+  flex: 0 0 auto;
+  inline-size: clamp(6.2rem, 24vw, 7.6rem);
+}
+
+.main-clubCard__detailText{
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.main-clubCard__deadline{
+  display: flex;
+  align-items: baseline;
+  justify-content: start;
+  gap: clamp(0.6rem, 2.2vw, 0.8rem);
+  margin-bottom: clamp(0.35rem, 1.4vw, 0.5rem);
+}
+
+.main-clubCard__deadlineLabel{
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: clamp(0.78rem, 2.9vw, 0.9rem);
+}
+
+.main-clubCard__deadlineVal{
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: clamp(0.82rem, 3vw, 0.95rem);
+}
+
+.main-clubCard__intro{
+  margin: 0;
+  font-size: clamp(0.78rem, 2.9vw, 0.92rem);
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.35;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.main-clubCard__intro.is-empty{
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.main-clubCard__noImageNote{
+  flex: 0 0 auto;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: clamp(0.78rem, 2.9vw, 0.92rem);
+}

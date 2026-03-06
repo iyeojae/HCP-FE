@@ -53,6 +53,25 @@ const dday = (v) => {
   return "지원 마감";
 };
 
+// ✅ "YYYY-MM-DD"를 로컬 날짜(자정)로 안전하게 파싱
+const parseLocalDate = (ymd) => {
+  const s = String(ymd || "").slice(0, 10);
+  const [y, m, d] = s.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+};
+
+// ✅ recruitEndAt 기준으로 '남은 일수' 계산 (오늘 0시 기준)
+const calcDaysLeft = (recruitEndAt) => {
+  const end = parseLocalDate(recruitEndAt);
+  if (!end) return null;
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 로컬 0시
+  const diffMs = end.getTime() - today.getTime();
+  return Math.round(diffMs / 86400000);
+};
+
 const normalizeName = (s) => String(s || "").replace(/\s/g, "");
 const isLikelion = (name) => normalizeName(name).includes("멋쟁이사자처럼");
 
@@ -98,7 +117,6 @@ export default function ClubDetail() {
 
   const imageUrl = useMemo(() => toImageUrl(club?.mainImageUrl), [club]);
   const categoryLabel = useMemo(() => categoryKo(club?.category), [club]);
-
   const isLikelionClub = useMemo(() => isLikelion(club?.name), [club]);
 
   // ✅ 새 필드: everytimeUrl
@@ -130,6 +148,13 @@ export default function ClubDetail() {
       </div>
     );
   }
+
+  // ✅ 프론트에서 recruitEndAt 기반으로 먼저 계산 (없으면 서버값 fallback)
+  const daysLeftFromEndAt = calcDaysLeft(club?.recruitEndAt);
+  const ddayValue =
+    daysLeftFromEndAt !== null && daysLeftFromEndAt !== undefined
+      ? daysLeftFromEndAt
+      : club.daysLeftToRecruitEnd;
 
   return (
     <div className="clubDetail-page">
@@ -168,7 +193,7 @@ export default function ClubDetail() {
           <div className="clubDetail-divider" />
 
           <div className="clubDetail-stat">
-            <div className="clubDetail-statVal">{dday(club.daysLeftToRecruitEnd)}</div>
+            <div className="clubDetail-statVal">{dday(ddayValue)}</div>
             <div className="clubDetail-statLab">마감기한</div>
           </div>
         </div>

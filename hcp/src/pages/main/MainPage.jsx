@@ -70,6 +70,17 @@ function normalizeClubDetail(raw) {
   };
 }
 
+// ✅ D-day 자연어 표시
+const ddayText = (v) => {
+  if (v === null || v === undefined) return "-";
+  const n = Number(v);
+  if (Number.isNaN(n)) return String(v);
+
+  if (n > 0) return `${n}일 남음`;
+  if (n === 0) return "오늘 마감";
+  return "지원 마감";
+};
+
 function SvgImg({ src, alt, className }) {
   return (
     <img
@@ -108,8 +119,8 @@ export default function MainPage() {
       "booth-2": 36, // ccc
       "booth-3": 20, // 무혼
       "booth-4": 15, // 라온
-      "booth-5": null, // 크라이시스
-      "booth-6": null, // 히바
+      "booth-5": 23, // 크라이시스
+      "booth-6": 26, // 히바
       "booth-7": null, // 투메니엠씨
       "booth-8": 41, // 다원
       "booth-9": 34, // 시골풍경
@@ -228,6 +239,15 @@ export default function MainPage() {
   /** 사진 1장만 */
   const imageUrl = resolveAssetUrl(selectedDetail?.mainImageUrl);
   const hasImage = !!imageUrl;
+
+  /** ✅ 소개글(소개글 없으면 summary fallback) */
+  const introText =
+    (selectedDetail?.introduction && String(selectedDetail.introduction).trim()) ||
+    (selectedDetail?.summary && String(selectedDetail.summary).trim()) ||
+    "";
+
+  /** ✅ D-day */
+  const deadlineText = ddayText(selectedDetail?.daysLeftToRecruitEnd);
 
   /** 오오라(정보가 실제로 떠 있는 부스) */
   const glowKey = showLoaded ? selectedKey : null;
@@ -351,21 +371,34 @@ export default function MainPage() {
             </div>
           )}
 
-          {/* ✅ 로드 성공 */}
-          {showLoaded && !hasImage && (
-            <div className="main-clubCard__messageWrap">
-              <p className="main-clubCard__message">등록된 사진이 없습니다.</p>
-            </div>
-          )}
+          {/* ✅ 로드 성공: 사진/소개글/마감 표시 */}
+          {showLoaded && (
+            <div className="main-clubCard__detailRow">
+              {hasImage ? (
+                <div className="main-clubCard__thumb">
+                  <div className="main-clubCard__imgWrap">
+                    <img
+                      className={`main-clubCard__img ${isSvgUrl(imageUrl) ? "is-svg" : ""}`}
+                      src={imageUrl}
+                      alt={`${clubName} 사진`}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="main-clubCard__noImageNote">등록된 사진이 없습니다.</div>
+              )}
 
-          {showLoaded && hasImage && (
-            <div className="main-clubCard__singleImage">
-              <div className="main-clubCard__imgWrap">
-                <img
-                  className={`main-clubCard__img ${isSvgUrl(imageUrl) ? "is-svg" : ""}`}
-                  src={imageUrl}
-                  alt={`${clubName} 사진`}
-                />
+              <div className="main-clubCard__detailText">
+                <div className="main-clubCard__deadline">
+                  <span className="main-clubCard__deadlineLabel">마감기한</span>
+                  <span className="main-clubCard__deadlineVal">{deadlineText}</span>
+                </div>
+
+                {introText ? (
+                  <p className="main-clubCard__intro">{introText}</p>
+                ) : (
+                  <p className="main-clubCard__intro is-empty">동아리 소개글이 없습니다.</p>
+                )}
               </div>
             </div>
           )}

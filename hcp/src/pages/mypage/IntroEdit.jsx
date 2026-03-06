@@ -21,7 +21,7 @@ const initForm = {
   category: "RELIGION",
   introduction: "",
   interviewProcess: "",
-  everytimeUrl: "", // ✅ 변경: 대표 링크 필드명
+  everytimeUrl: "",
 };
 
 const toNum = (v) => {
@@ -31,13 +31,23 @@ const toNum = (v) => {
 
 const norm = (s) => String(s || "").replace(/\s/g, "").toLowerCase();
 
-const joinUrl = (base, path) => {
+// ✅ baseURL에 /api가 붙어있으면 제거 후 origin 만들기
+const getApiOrigin = () => {
+  const base =
+    api?.defaults?.baseURL ||
+    process.env.REACT_APP_API_URL ||
+    process.env.REACT_APP_API_BASE_URL ||
+    "";
+  if (!base) return window.location.origin;
+  return String(base).replace(/\/api\/?$/i, "");
+};
+
+const toImageUrl = (path) => {
   if (!path) return "";
   if (/^https?:\/\//i.test(path)) return path;
-  if (!base) return path;
-  const b = String(base).replace(/\/$/, "");
+  const origin = getApiOrigin();
   const p = String(path).startsWith("/") ? path : `/${path}`;
-  return `${b}${p}`;
+  return `${origin}${p}`;
 };
 
 // ✅ 링크 정리(프로토콜 없으면 https:// 붙이기)
@@ -105,15 +115,12 @@ export default function IntroEdit() {
       category: form.category,
       introduction: form.introduction,
       interviewProcess: form.interviewProcess,
-
-      // ✅ 서버 스펙: everytimeUrl
       everytimeUrl: form.everytimeUrl.trim() ? normalizeLink(form.everytimeUrl) : null,
     }),
     [form]
   );
 
   const fillFromData = (data) => {
-    // ✅ 서버 스펙: everytimeUrl (혹시 과거 필드가 남아있을 수 있어 fallback도 포함)
     const link =
       data?.everytimeUrl ??
       data?.applyLink ??
@@ -134,13 +141,8 @@ export default function IntroEdit() {
       everytimeUrl: link ? String(link) : p.everytimeUrl,
     }));
 
-    const base =
-      api?.defaults?.baseURL ||
-      process.env.REACT_APP_API_URL ||
-      process.env.REACT_APP_API_BASE_URL ||
-      "";
-
-    const img = joinUrl(base, data?.mainImageUrl);
+    // ✅ 이미지 URL 안정화( /api 제거한 origin 사용 )
+    const img = toImageUrl(data?.mainImageUrl);
     setExistingImageUrl(img || "");
   };
 
@@ -212,7 +214,7 @@ export default function IntroEdit() {
       setMsg("");
 
       const res = await api.post("/api/clubadmin/clubs", payload);
-      const id = res?.data?.clubId;
+      const id = res?.data?.clubId ?? res?.data?.data?.clubId ?? res?.data?.result?.clubId;
 
       if (id === undefined || id === null) {
         setMsg("생성은 되었지만 clubId 응답을 확인하지 못했습니다.");
@@ -256,8 +258,9 @@ export default function IntroEdit() {
     }
   };
 
-  const uploadImageCreate = async () => {
-    if (!clubIdNum) return setMsg("먼저 글을 생성해서 clubId를 받으세요.");
+  // ✅ 생성/수정 모두 동일 엔드포인트로 업로드 + 업로드 후 즉시 재조회로 화면 갱신
+  const uploadMainImage = async (id) => {
+    if (!id) return setMsg("clubId를 입력(또는 생성/불러오기) 하세요.");
     if (!file) return setMsg("업로드할 대표 이미지를 선택하세요.");
 
     try {
@@ -267,12 +270,18 @@ export default function IntroEdit() {
       const fd = new FormData();
       fd.append("mainImage", file);
 
-      await api.post("/api/clubadmin/clubs", fd, {
-        params: { clubId: clubIdNum },
+      await api.put("/api/clubadmin/clubs/main-image", fd, {
+        params: { clubId: id },
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setMsg(`✅ 대표 이미지 업로드 완료! clubId=${clubIdNum}`);
+      // ✅ 업로드 성공 후 최신 상세 재조회 → 기존 이미지 URL 갱신
+      const data = await loadClubDetail(id);
+      if (data) fillFromData(data);
+
+      setFile(null);
+      setPreview("");
+      setMsg(`✅ 대표 이미지 반영 완료! clubId=${id}`);
     } catch (e) {
       setMsg(
         e?.response?.data?.message ||
@@ -285,34 +294,8 @@ export default function IntroEdit() {
     }
   };
 
-  const uploadImageEdit = async () => {
-    if (!clubIdNum) return setMsg("clubId를 입력(또는 불러오기) 하세요.");
-    if (!file) return setMsg("교체할 대표 이미지를 선택하세요.");
-
-    try {
-      setBusy(true);
-      setMsg("");
-
-      const fd = new FormData();
-      fd.append("mainImage", file);
-
-      await api.put("/api/clubadmin/clubs/main-image", fd, {
-        params: { clubId: clubIdNum },
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      setMsg(`✅ 대표 이미지 교체 완료! clubId=${clubIdNum}`);
-    } catch (e) {
-      setMsg(
-        e?.response?.data?.message ||
-          e?.response?.data?.error ||
-          e?.message ||
-          "대표 이미지 교체 실패"
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
+  const uploadImageCreate = async () => uploadMainImage(clubIdNum);
+  const uploadImageEdit = async () => uploadMainImage(clubIdNum);
 
   const onNameKeyDown = (e) => {
     if (mode !== "EDIT") return;
@@ -403,7 +386,6 @@ export default function IntroEdit() {
             />
           </div>
 
-          {/* ✅ 대표 링크 (everytimeUrl) */}
           <div className="introEdit__row">
             <label className="introEdit__label">대표 링크(에브리타임)</label>
             <input
