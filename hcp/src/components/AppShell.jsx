@@ -28,48 +28,116 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
   const isMyPage = location.pathname.startsWith("/mypage");
   const lockMyPageScroll = isMyPage && !isAdmin;
 
-  /** ✅ 로그인 라우트(산 숨김 + 스크롤 잠금) */
-  const isAuthLogin =
-    location.pathname.startsWith("/login") ||
-    location.pathname.startsWith("/admin/login");
-
   /** ✅ 전역 API pending 구독 */
   const [pendingApi, setPendingApi] = useState(globalLoaderStore.get());
   useEffect(() => globalLoaderStore.subscribe(setPendingApi), []);
 
-  /** ✅ 현재 페이지(.shell-main) 내부 이미지 로딩 추적 */
+  /** ✅ 기존: shell-main 내부 <img> 로딩 추적(전체 이미지) */
   const pendingImgs = useTrackImagesInElement(".shell-main");
 
-  /**
-   * ✅ 로더 표시 정책(너 요구사항)
-   * - /login, /admin/login, /main 진입 시: 일단 로더 ON(최소 1초는 Overlay가 보장)
-   * - 그 사이 이미지/버튼이 렌더되면 자연스럽게 OFF(Overlay가 1초는 유지)
-   * - 그 외 페이지: 기존대로 API/이미지 로딩 중일 때만 ON
-   */
+  /** ===============================
+   * ✅ 메인/로그인에서는 "로컬 SVG만" 기다리기 (무한로더 방지)
+   * =============================== */
+  const isLogin = location.pathname.startsWith("/login");
+  const isAdminLogin = location.pathname.startsWith("/admin/login");
   const isMain = location.pathname.startsWith("/main");
-  const isForceLoaderRoute = isAuthLogin || isMain;
+  const isAssetGateRoute = isLogin || isAdminLogin || isMain;
 
   const [routeHold, setRouteHold] = useState(false);
+  const [svgScanned, setSvgScanned] = useState(false);
+  const [pendingLocalSvg, setPendingLocalSvg] = useState(0);
+  const trackedRef = useRef(new WeakSet());
 
-  // 라우트 바뀌면(해당 라우트일 때) 일단 ON
+  // 라우트 진입 시: 해당 라우트면 로더 ON + 추적 상태 리셋
   useEffect(() => {
-    if (isForceLoaderRoute) setRouteHold(true);
-    else setRouteHold(false);
-  }, [isForceLoaderRoute, location.pathname]);
+    if (isAssetGateRoute) {
+      setRouteHold(true);
+      setSvgScanned(false);
+      setPendingLocalSvg(0);
+      trackedRef.current = new WeakSet();
+    } else {
+      setRouteHold(false);
+    }
+  }, [isAssetGateRoute, location.pathname]);
 
-  // 로딩이 다 끝나면(한 프레임 뒤) OFF 후보로 전환
+  // 로컬 SVG(<img src="/static/media/*.svg" 또는 same-origin *.svg)만 추적
   useEffect(() => {
-    if (!isForceLoaderRoute) return;
+    if (!isAssetGateRoute) return;
 
-    if (pendingApi === 0 && pendingImgs === 0) {
+    const root = document.querySelector(".shell-main");
+    if (!root) return;
+
+    let alive = true;
+
+    const isLocalSvg = (img) => {
+      const src = img?.currentSrc || img?.src || "";
+      if (!src) return false;
+      if (src.startsWith("data:")) return false;
+
+      try {
+        const u = new URL(src, window.location.href);
+        if (u.origin !== window.location.origin) return false; // ✅ 외부 이미지 제외
+        return u.pathname.toLowerCase().endsWith(".svg");       // ✅ svg만
+      } catch {
+        return String(src).toLowerCase().includes(".svg");
+      }
+    };
+
+    const update = () => {
+      if (!alive) return;
+
+      const imgs = Array.from(root.querySelectorAll("img")).filter(isLocalSvg);
+      let p = 0;
+
+      imgs.forEach((img) => {
+        if (!trackedRef.current.has(img)) {
+          trackedRef.current.add(img);
+
+          const onDone = () => {
+            if (!alive) return;
+            requestAnimationFrame(update);
+          };
+
+          img.addEventListener("load", onDone, { once: true });
+          img.addEventListener("error", onDone, { once: true });
+        }
+
+        if (!img.complete) p += 1;
+      });
+
+      setSvgScanned(true);
+      setPendingLocalSvg(p);
+    };
+
+    update();
+
+    const mo = new MutationObserver(() => update());
+    mo.observe(root, { childList: true, subtree: true, attributes: true });
+
+    return () => {
+      alive = false;
+      mo.disconnect();
+    };
+  }, [isAssetGateRoute, location.pathname]);
+
+  // 로컬 SVG 로딩 완료되면 routeHold 해제
+  useEffect(() => {
+    if (!isAssetGateRoute) return;
+
+    if (svgScanned && pendingLocalSvg === 0) {
       requestAnimationFrame(() => setRouteHold(false));
     } else {
       setRouteHold(true);
     }
-  }, [isForceLoaderRoute, pendingApi, pendingImgs]);
+  }, [isAssetGateRoute, svgScanned, pendingLocalSvg]);
 
-  const baseLoaderOpen = pendingApi > 0 || pendingImgs > 0;
-  const loaderOpen = baseLoaderOpen || (isForceLoaderRoute && routeHold);
+  /** ✅ 최종 로더 조건
+   * - /login,/admin/login,/main: 로컬 SVG만으로 로더 제어 (무한로더 방지)
+   * - 그 외: 기존 전역 방식 유지
+   */
+  const loaderOpen = isAssetGateRoute
+    ? (routeHold || !svgScanned || pendingLocalSvg > 0)
+    : (pendingApi > 0 || pendingImgs > 0);
 
   /**
    * ✅ 요구사항 반영
@@ -166,24 +234,19 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
     "app-shell",
     showMenu ? "" : "app-shell--noMenu",
     lockMyPageScroll ? "app-shell--lockMyPageScroll" : "",
-    isAuthLogin ? "app-shell--authLogin" : "",
   ]
     .filter(Boolean)
     .join(" ");
 
   return (
     <div className={shellClassName}>
-      {/* ✅ 전역 로더: 최소 1초 + 페이드는 GlobalLoaderOverlay가 처리 */}
+      {/* ✅ 최소 1초 + 페이드 */}
       <GlobalLoaderOverlay open={loaderOpen} minDurationMs={1000} />
 
       <canvas ref={canvasRef} className="shell-stars" aria-hidden="true" />
 
       <div className="shell-mountains" aria-hidden="true">
-        <svg
-          className="shell-mountains__svg"
-          viewBox="0 0 430 932"
-          preserveAspectRatio="none"
-        >
+        <svg className="shell-mountains__svg" viewBox="0 0 430 932" preserveAspectRatio="none">
           <path
             d="M431.252 6.06578C475.286 -17.5493 470.568 33.4572 462.705 61.9123L431.252 539L-99.0898 547.776C59.3427 377.046 387.217 29.6809 431.252 6.06578Z"
             fill="#28392F"
