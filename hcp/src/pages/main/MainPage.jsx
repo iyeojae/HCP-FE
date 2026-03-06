@@ -1,5 +1,6 @@
 // src/pages/main/MainPage.jsx
 import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/main/MainPage.css";
 import api from "../../api/axios";
 
@@ -95,6 +96,8 @@ function MapIconButton({ className, label, onClick, active = false, children }) 
 }
 
 export default function MainPage() {
+  const navigate = useNavigate();
+
   /**
    * ✅ clubId 매핑 (네가 준 값 반영 완료)
    * "없음" -> null
@@ -229,6 +232,22 @@ export default function MainPage() {
   /** 오오라(정보가 실제로 떠 있는 부스) */
   const glowKey = showLoaded ? selectedKey : null;
 
+  /** ✅ 카드 클릭 시 상세로 이동 가능 여부 */
+  const canGoDetail = showLoaded && !!selectedDetail?.clubId;
+
+  const onClickCard = () => {
+    if (!canGoDetail) return;
+    navigate(`/clubs/${selectedDetail.clubId}`);
+  };
+
+  const onKeyDownCard = (e) => {
+    if (!canGoDetail) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      navigate(`/clubs/${selectedDetail.clubId}`);
+    }
+  };
+
   return (
     <div className="main-page">
       <div className="main-page-content">
@@ -297,7 +316,15 @@ export default function MainPage() {
         </section>
 
         {/* ================= 하단 카드 ================= */}
-        <section className="main-clubCard" aria-label="선택한 동아리 정보" aria-busy={loadingDetail}>
+        <section
+          className={`main-clubCard ${canGoDetail ? "is-clickable" : ""}`}
+          aria-label="선택한 동아리 정보"
+          aria-busy={loadingDetail}
+          onClick={onClickCard}
+          onKeyDown={onKeyDownCard}
+          role={canGoDetail ? "button" : undefined}
+          tabIndex={canGoDetail ? 0 : undefined}
+        >
           {/* ✅ 초기에는 헤더(동아리명/분야) 숨김 */}
           {showLoaded && (
             <div className="main-clubCard__head">

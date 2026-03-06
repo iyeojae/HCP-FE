@@ -84,3 +84,12 @@
 .app-shell--noMenu .shell-content {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* ✅ 로그인(헤더/메뉴 없는) 화면에서는 산을 숨기고, 메인 스크롤 잠금 */
+.app-shell--authLogin .shell-mountains {
+  display: none;
+}
+
+.app-shell--authLogin .shell-main {
+  overflow: hidden;
+}

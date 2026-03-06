@@ -12,7 +12,7 @@ import nav3 from "../assets/nav/nav3.svg";
 
 import { storage } from "../utils/storage";
 
-/** ✅ 전역 로더 추가 */
+/** ✅ 전역 로더 */
 import GlobalLoaderOverlay from "./common/GlobalLoaderOverlay";
 import { globalLoaderStore } from "../utils/globalLoaderStore";
 import { useTrackImagesInElement } from "../hooks/useTrackImagesInElement";
@@ -28,6 +28,11 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
   const isMyPage = location.pathname.startsWith("/mypage");
   const lockMyPageScroll = isMyPage && !isAdmin;
 
+  /** ✅ 로그인 라우트(산 숨김 + 스크롤 잠금) */
+  const isAuthLogin =
+    location.pathname.startsWith("/login") ||
+    location.pathname.startsWith("/admin/login");
+
   /** ✅ 전역 API pending 구독 */
   const [pendingApi, setPendingApi] = useState(globalLoaderStore.get());
   useEffect(() => globalLoaderStore.subscribe(setPendingApi), []);
@@ -35,8 +40,36 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
   /** ✅ 현재 페이지(.shell-main) 내부 이미지 로딩 추적 */
   const pendingImgs = useTrackImagesInElement(".shell-main");
 
-  /** ✅ 로더 표시 조건: API or 이미지 로딩 중 */
-  const loaderOpen = pendingApi > 0 || pendingImgs > 0;
+  /**
+   * ✅ 로더 표시 정책(너 요구사항)
+   * - /login, /admin/login, /main 진입 시: 일단 로더 ON(최소 1초는 Overlay가 보장)
+   * - 그 사이 이미지/버튼이 렌더되면 자연스럽게 OFF(Overlay가 1초는 유지)
+   * - 그 외 페이지: 기존대로 API/이미지 로딩 중일 때만 ON
+   */
+  const isMain = location.pathname.startsWith("/main");
+  const isForceLoaderRoute = isAuthLogin || isMain;
+
+  const [routeHold, setRouteHold] = useState(false);
+
+  // 라우트 바뀌면(해당 라우트일 때) 일단 ON
+  useEffect(() => {
+    if (isForceLoaderRoute) setRouteHold(true);
+    else setRouteHold(false);
+  }, [isForceLoaderRoute, location.pathname]);
+
+  // 로딩이 다 끝나면(한 프레임 뒤) OFF 후보로 전환
+  useEffect(() => {
+    if (!isForceLoaderRoute) return;
+
+    if (pendingApi === 0 && pendingImgs === 0) {
+      requestAnimationFrame(() => setRouteHold(false));
+    } else {
+      setRouteHold(true);
+    }
+  }, [isForceLoaderRoute, pendingApi, pendingImgs]);
+
+  const baseLoaderOpen = pendingApi > 0 || pendingImgs > 0;
+  const loaderOpen = baseLoaderOpen || (isForceLoaderRoute && routeHold);
 
   /**
    * ✅ 요구사항 반영
@@ -133,14 +166,15 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
     "app-shell",
     showMenu ? "" : "app-shell--noMenu",
     lockMyPageScroll ? "app-shell--lockMyPageScroll" : "",
+    isAuthLogin ? "app-shell--authLogin" : "",
   ]
     .filter(Boolean)
     .join(" ");
 
   return (
     <div className={shellClassName}>
-      {/* ✅ 전역 로더 오버레이(모든 페이지 공통) */}
-      <GlobalLoaderOverlay open={loaderOpen} minDurationMs={1000}/>
+      {/* ✅ 전역 로더: 최소 1초 + 페이드는 GlobalLoaderOverlay가 처리 */}
+      <GlobalLoaderOverlay open={loaderOpen} minDurationMs={1000} />
 
       <canvas ref={canvasRef} className="shell-stars" aria-hidden="true" />
 
