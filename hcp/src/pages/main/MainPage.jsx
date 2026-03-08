@@ -155,7 +155,7 @@ export default function MainPage() {
         summary: "",
         recruitState: null,
         daysLeftToRecruitEnd: null,
-        viewCount: null,
+        viewCount: null, 
         category: "",
         customTag: "운영",
         introduction:
