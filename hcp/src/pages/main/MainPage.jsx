@@ -1,4 +1,3 @@
-// src/pages/main/MainPage.jsx
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/main/MainPage.css";
@@ -21,6 +20,12 @@ import Booth9Svg from "../../assets/main/booths/booth_2.svg";
 import Booth10Svg from "../../assets/main/booths/booth_10.svg";
 
 import FoodTruckSvg from "../../assets/main/map/food_truck.svg";
+
+/** ✅ 총동아리연합회용 직접 등록 이미지
+ *  바탕화면 파일은 바로 import 못하므로,
+ *  프로젝트 내부(src/assets/...)로 옮겨서 사용해야 함
+ */
+import UnionBoothJpg from "../../assets/main/booths/union_booth.jpg";
 
 /** category 코드 → 라벨 */
 const CATEGORY_LABEL = {
@@ -55,7 +60,7 @@ function isSvgUrl(url) {
 
 function normalizeClubDetail(raw) {
   if (!raw) return null;
-  const d = raw?.data ?? raw?.result ?? raw; // 래핑 방어
+  const d = raw?.data ?? raw?.result ?? raw;
   return {
     clubId: d.clubId,
     mainImageUrl: d.mainImageUrl,
@@ -67,6 +72,8 @@ function normalizeClubDetail(raw) {
     category: d.category,
     introduction: d.introduction,
     interviewProcess: d.interviewProcess,
+    isCustom: false,
+    customTag: "",
   };
 }
 
@@ -110,8 +117,8 @@ export default function MainPage() {
   const navigate = useNavigate();
 
   /**
-   * ✅ clubId 매핑 (네가 준 값 반영 완료)
-   * "없음" -> null
+   * ✅ clubId 매핑
+   * booth-10 은 API 연동 안 하므로 null 유지
    */
   const CLUB_ID_MAP = useMemo(
     () => ({
@@ -121,15 +128,42 @@ export default function MainPage() {
       "booth-4": 15, // 라온
       "booth-5": 23, // 크라이시스
       "booth-6": 26, // 히바
-      "booth-7": null, // 투메니엠씨
+      "booth-7": 10, // 투메니엠씨
       "booth-8": 41, // 다원
       "booth-9": 34, // 시골풍경
-      "booth-10": null, // 총동아리 연합회
+      "booth-10": null, // 총동아리연합회 (직접 데이터 사용)
 
       "booth9-sub-1": 40, // 나비
       "truckArea-booth-1": 13, // 한서랑붓다랑
       "truckArea-booth-2": 16, // 비상
       "truckArea-booth-3": 14, // 무브
+    }),
+    []
+  );
+
+  /**
+   * ✅ booth-10 전용 직접 데이터
+   * 소개글은 여기 직접 수정하면 됨
+   * 마감기한은 없으므로 daysLeftToRecruitEnd: null + hideDeadline: true
+   */
+  const CUSTOM_BOOTH_DETAIL_MAP = useMemo(
+    () => ({
+      "booth-10": {
+        clubId: null,
+        mainImageUrl: UnionBoothJpg,
+        name: "총동아리연합회",
+        summary: "",
+        recruitState: null,
+        daysLeftToRecruitEnd: null,
+        viewCount: null,
+        category: "",
+        customTag: "운영",
+        introduction:
+          "총동아리연합회 부스입니다. 축제 기간 동안 동아리 관련 안내와 행사 운영 지원을 진행하며, 방문 학생들에게 필요한 정보를 제공하는 공간입니다.",
+        interviewProcess: "",
+        isCustom: true,
+        hideDeadline: true,
+      },
     }),
     []
   );
@@ -200,9 +234,17 @@ export default function MainPage() {
     setSelectedDetail(null);
     setNoInfo(false);
 
+    /** ✅ 1) 직접 넣는 부스면 API 안 타고 바로 세팅 */
+    const customDetail = CUSTOM_BOOTH_DETAIL_MAP[booth.key];
+    if (customDetail) {
+      setSelectedDetail(customDetail);
+      setLoadingDetail(false);
+      return;
+    }
+
+    /** ✅ 2) 일반 부스는 기존처럼 API 연동 */
     const clubId = CLUB_ID_MAP[booth.key];
 
-    // clubId 없으면: 부스 정보 없음
     if (!clubId) {
       setNoInfo(true);
       return;
@@ -231,29 +273,39 @@ export default function MainPage() {
   const showNoInfo = selectedBoothSlot != null && !loadingDetail && !selectedDetail && noInfo;
   const showLoaded = !!selectedDetail && !loadingDetail;
 
-  /** 헤더는 로드 성공 시만 노출 */
+  /** 헤더 */
   const clubName = selectedDetail?.name || "";
   const categoryCode = selectedDetail?.category || "";
-  const categoryLabel = CATEGORY_LABEL[categoryCode] || categoryCode || "분야";
+  const categoryLabel =
+    selectedDetail?.customTag ||
+    CATEGORY_LABEL[categoryCode] ||
+    categoryCode ||
+    "분야";
 
-  /** 사진 1장만 */
-  const imageUrl = resolveAssetUrl(selectedDetail?.mainImageUrl);
+  /** 사진 */
+  const imageUrl = selectedDetail?.isCustom
+    ? selectedDetail?.mainImageUrl || ""
+    : resolveAssetUrl(selectedDetail?.mainImageUrl);
+
   const hasImage = !!imageUrl;
 
-  /** ✅ 소개글(소개글 없으면 summary fallback) */
+  /** 소개글 */
   const introText =
     (selectedDetail?.introduction && String(selectedDetail.introduction).trim()) ||
     (selectedDetail?.summary && String(selectedDetail.summary).trim()) ||
     "";
 
-  /** ✅ D-day */
+  /** 마감기한 */
   const deadlineText = ddayText(selectedDetail?.daysLeftToRecruitEnd);
+  const hideDeadline = !!selectedDetail?.hideDeadline;
 
-  /** 오오라(정보가 실제로 떠 있는 부스) */
+  /** 오오라 */
   const glowKey = showLoaded ? selectedKey : null;
 
-  /** ✅ 카드 클릭 시 상세로 이동 가능 여부 */
-  const canGoDetail = showLoaded && !!selectedDetail?.clubId;
+  /** 카드 클릭 시 상세 이동 가능 여부
+   *  booth-10(직접 데이터)는 clubId 없으므로 이동 안 함
+   */
+  const canGoDetail = showLoaded && !!selectedDetail?.clubId && !selectedDetail?.isCustom;
 
   const onClickCard = () => {
     if (!canGoDetail) return;
@@ -345,7 +397,6 @@ export default function MainPage() {
           role={canGoDetail ? "button" : undefined}
           tabIndex={canGoDetail ? 0 : undefined}
         >
-          {/* ✅ 초기에는 헤더(동아리명/분야) 숨김 */}
           {showLoaded && (
             <div className="main-clubCard__head">
               <div className="main-clubCard__title">{clubName}</div>
@@ -371,7 +422,6 @@ export default function MainPage() {
             </div>
           )}
 
-          {/* ✅ 로드 성공: 사진/소개글/마감 표시 */}
           {showLoaded && (
             <div className="main-clubCard__detailRow">
               {hasImage ? (
@@ -389,10 +439,12 @@ export default function MainPage() {
               )}
 
               <div className="main-clubCard__detailText">
-                <div className="main-clubCard__deadline">
-                  <span className="main-clubCard__deadlineLabel">마감기한</span>
-                  <span className="main-clubCard__deadlineVal">{deadlineText}</span>
-                </div>
+                {!hideDeadline && (
+                  <div className="main-clubCard__deadline">
+                    <span className="main-clubCard__deadlineLabel">마감기한</span>
+                    <span className="main-clubCard__deadlineVal">{deadlineText}</span>
+                  </div>
+                )}
 
                 {introText ? (
                   <p className="main-clubCard__intro">{introText}</p>
