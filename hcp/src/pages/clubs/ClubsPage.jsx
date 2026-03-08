@@ -1,8 +1,6 @@
-// src/pages/clubs/ClubsPage.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import { useSearchParams, Link, useNavigate } from "react-router-dom"; // ✅ useNavigate 추가
+import { useSearchParams, useNavigate } from "react-router-dom";
 import "../../styles/clubs/ClubsPage.css";
-import LogoImg from "../../assets/logo2.svg";
 
 import api from "../../api/axios";
 
@@ -37,12 +35,11 @@ function categoryTitle(category) {
   }
 }
 
-/** coverUrl이 "/uploads/..." 같은 상대경로면 API 도메인 붙여서 절대경로로 */
 function buildCoverUrl(coverUrl) {
   if (!coverUrl) return "";
   if (/^https?:\/\//i.test(coverUrl)) return coverUrl;
 
-  const base = api?.defaults?.baseURL || ""; // ex) https://api.likelionhsu.kr/api
+  const base = api?.defaults?.baseURL || "";
   const origin = base ? base.replace(/\/api\/?$/i, "") : "https://api.likelionhsu.kr";
 
   const path = coverUrl.startsWith("/") ? coverUrl : `/${coverUrl}`;
@@ -51,7 +48,7 @@ function buildCoverUrl(coverUrl) {
 
 export default function ClubsPage() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate(); // ✅ 추가
+  const navigate = useNavigate();
 
   const rawStatus = (searchParams.get("status") || "").toUpperCase().trim();
   const q = (searchParams.get("q") || "").trim();
@@ -132,13 +129,11 @@ export default function ClubsPage() {
     return sections.reduce((acc, s) => acc + (s.clubs?.length || 0), 0);
   }, [sections]);
 
-  // ✅ 카드 클릭 시 상세로 이동
   const goDetail = (clubId) => {
     if (!clubId && clubId !== 0) return;
     navigate(`/clubs/${clubId}`);
   };
 
-  // ✅ 키보드(Enter/Space)도 클릭처럼 동작
   const onCardKeyDown = (e, clubId) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -148,17 +143,6 @@ export default function ClubsPage() {
 
   return (
     <div className="clubs-page">
-      <section className="clubs-user" aria-label="서비스 정보">
-        <Link to="/" className="clubs-user__avatarLink" aria-label="시작 화면으로 이동">
-          <img className="clubs-user__avatar" src={LogoImg} alt="HCP 로고" />
-        </Link>
-
-        <div className="clubs-user__meta">
-          <div className="clubs-user__dept clubs-user__dept--brand">Hanseo Club Portal</div>
-          <div className="clubs-user__nick clubs-user__nick--brand">HCP</div>
-        </div>
-      </section>
-
       {loading ? (
         <div className="clubs-empty">불러오는 중입니다…</div>
       ) : errorMsg ? (
@@ -177,9 +161,9 @@ export default function ClubsPage() {
                     key={club.id}
                     className="club-card"
                     role="listitem"
-                    tabIndex={0}                 // ✅ 포커스 가능
-                    onClick={() => goDetail(club.id)} // ✅ 클릭 이동
-                    onKeyDown={(e) => onCardKeyDown(e, club.id)} // ✅ Enter/Space 이동
+                    tabIndex={0}
+                    onClick={() => goDetail(club.id)}
+                    onKeyDown={(e) => onCardKeyDown(e, club.id)}
                     aria-label={`${club.name} 상세 보기`}
                   >
                     <div className="club-card__media">

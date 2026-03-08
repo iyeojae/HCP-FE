@@ -6,6 +6,7 @@ import SearchIcon from "../assets/header/search.svg";
 import Ham1 from "../assets/header/ham1.svg";
 import Ham2 from "../assets/header/ham2.svg";
 import Ham3 from "../assets/header/ham3.svg";
+import LogoImg from "../assets/logo2.svg";
 
 export default function Header({ onSearch, onMenu }) {
   const navigate = useNavigate();
@@ -17,8 +18,6 @@ export default function Header({ onSearch, onMenu }) {
   const [keyword, setKeyword] = useState("");
 
   const inputRef = useRef(null);
-
-  // ✅ 추가: 검색바/검색버튼 ref (바깥 클릭 닫기용)
   const searchBarRef = useRef(null);
   const searchBtnRef = useRef(null);
 
@@ -49,7 +48,6 @@ export default function Header({ onSearch, onMenu }) {
 
   const closeTab = () => setTabOpen(false);
 
-  // ESC로 닫기
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.key === "Escape") {
@@ -61,7 +59,6 @@ export default function Header({ onSearch, onMenu }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  // ✅ 추가: 검색창 열려 있을 때, 바깥 클릭/터치 시 닫기
   useEffect(() => {
     if (!searchOpen) return;
 
@@ -70,7 +67,6 @@ export default function Header({ onSearch, onMenu }) {
       const inBar = searchBarRef.current?.contains(t);
       const inBtn = searchBtnRef.current?.contains(t);
 
-      // 검색바/검색버튼 내부가 아니면 닫기
       if (!inBar && !inBtn) setSearchOpen(false);
     };
 
@@ -89,14 +85,12 @@ export default function Header({ onSearch, onMenu }) {
     });
   };
 
-  // ✅ 검색 실행(Enter/검색버튼 모두 여기로)
-  // ✅ 요구사항: 검색되면 검색창 닫기
   const submitSearch = () => {
     const q = keyword.trim();
 
     if (!isClubsPage) {
       onSearch?.(q);
-      setSearchOpen(false); // ✅ 검색 후 닫기
+      setSearchOpen(false);
       return;
     }
 
@@ -106,14 +100,9 @@ export default function Header({ onSearch, onMenu }) {
     });
 
     onSearch?.(q);
-
-    // ✅ Enter로 검색했든, 검색 아이콘으로 했든 무조건 닫기
     setSearchOpen(false);
   };
 
-  // ✅ 검색 아이콘:
-  // - 닫혀있으면 열기
-  // - 열려있으면 검색 실행(=submitSearch가 닫아줌)
   const handleSearchClick = () => {
     setTabOpen(false);
 
@@ -150,42 +139,59 @@ export default function Header({ onSearch, onMenu }) {
   return (
     <>
       <header className="app-header" aria-label="상단 헤더">
-        <div className="app-header__right">
-          {/* ✅ 검색 아이콘 */}
-          <button
-            ref={searchBtnRef}
-            type="button"
-            className={`app-header__iconBtn ${searchOpen ? "is-active" : ""}`}
-            onClick={handleSearchClick}
-            aria-label={searchOpen ? "검색 실행" : "검색 열기"}
-            aria-expanded={searchOpen}
-          >
-            <img
-              src={SearchIcon}
-              alt=""
-              aria-hidden="true"
-              className="app-header__iconImg"
-            />
-          </button>
+        <div className="app-header__top">
+          {isClubsPage ? (
+            <button
+              type="button"
+              className="app-header__brand"
+              onClick={() => navigate("/")}
+              aria-label="시작 화면으로 이동"
+            >
+              <img className="app-header__brandAvatar" src={LogoImg} alt="HCP 로고" />
 
-          {/* ✅ 햄버거 아이콘 */}
-          <button
-            type="button"
-            className={`app-header__iconBtn ${tabOpen ? "is-active" : ""}`}
-            onClick={openTab}
-            aria-label="메뉴"
-            aria-expanded={tabOpen}
-            aria-controls="header-side-tab"
-          >
-            <span className="hamburger" aria-hidden="true">
-              <span className="hamburger__line" />
-              <span className="hamburger__line" />
-              <span className="hamburger__line" />
-            </span>
-          </button>
+              <span className="app-header__brandMeta">
+                <span className="app-header__brandDept">Hanseo Club Portal</span>
+                <span className="app-header__brandNick">HCP</span>
+              </span>
+            </button>
+          ) : (
+            <div className="app-header__brandPlaceholder" aria-hidden="true" />
+          )}
+
+          <div className="app-header__right">
+            <button
+              ref={searchBtnRef}
+              type="button"
+              className={`app-header__iconBtn ${searchOpen ? "is-active" : ""}`}
+              onClick={handleSearchClick}
+              aria-label={searchOpen ? "검색 실행" : "검색 열기"}
+              aria-expanded={searchOpen}
+            >
+              <img
+                src={SearchIcon}
+                alt=""
+                aria-hidden="true"
+                className="app-header__iconImg"
+              />
+            </button>
+
+            <button
+              type="button"
+              className={`app-header__iconBtn ${tabOpen ? "is-active" : ""}`}
+              onClick={openTab}
+              aria-label="메뉴"
+              aria-expanded={tabOpen}
+              aria-controls="header-side-tab"
+            >
+              <span className="hamburger" aria-hidden="true">
+                <span className="hamburger__line" />
+                <span className="hamburger__line" />
+                <span className="hamburger__line" />
+              </span>
+            </button>
+          </div>
         </div>
 
-        {/* ✅ 검색줄 */}
         <div
           className={`header-search ${searchOpen ? "is-open" : ""}`}
           role="search"
@@ -195,7 +201,7 @@ export default function Header({ onSearch, onMenu }) {
             className="header-search__bar"
             onSubmit={(e) => {
               e.preventDefault();
-              submitSearch(); // ✅ Enter → 검색 + 닫힘
+              submitSearch();
             }}
           >
             <input
@@ -230,14 +236,12 @@ export default function Header({ onSearch, onMenu }) {
         </div>
       </header>
 
-      {/* ✅ 전체 흐림 오버레이 */}
       <div
         className={`header-overlay ${tabOpen ? "is-open" : ""}`}
         onClick={closeTab}
         aria-hidden={!tabOpen}
       />
 
-      {/* ✅ 오른쪽 작은 탭 */}
       <aside
         id="header-side-tab"
         className={`header-sideTab ${tabOpen ? "is-open" : ""}`}
@@ -248,9 +252,7 @@ export default function Header({ onSearch, onMenu }) {
         <div className="header-sideTab__content">
           <button
             type="button"
-            className={`header-sideTab__itemBtn ${
-              isActive("PRE") ? "is-active" : ""
-            }`}
+            className={`header-sideTab__itemBtn ${isActive("PRE") ? "is-active" : ""}`}
             onClick={() => handleTabClick("ham1")}
             aria-label="모집전"
             aria-pressed={isActive("PRE")}
@@ -261,9 +263,7 @@ export default function Header({ onSearch, onMenu }) {
 
           <button
             type="button"
-            className={`header-sideTab__itemBtn ${
-              isActive("OPEN") ? "is-active" : ""
-            }`}
+            className={`header-sideTab__itemBtn ${isActive("OPEN") ? "is-active" : ""}`}
             onClick={() => handleTabClick("ham2")}
             aria-label="모집중"
             aria-pressed={isActive("OPEN")}
@@ -274,9 +274,7 @@ export default function Header({ onSearch, onMenu }) {
 
           <button
             type="button"
-            className={`header-sideTab__itemBtn ${
-              isActive("CLOSED") ? "is-active" : ""
-            }`}
+            className={`header-sideTab__itemBtn ${isActive("CLOSED") ? "is-active" : ""}`}
             onClick={() => handleTabClick("ham3")}
             aria-label="모집 종료"
             aria-pressed={isActive("CLOSED")}
