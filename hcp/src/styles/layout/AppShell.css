@@ -13,6 +13,7 @@
   );
 }
 
+/* ✅ 배경 전체를 은은하게 블러 처리하는 레이어 */
 .app-shell::after {
   content: "";
   position: absolute;
@@ -20,10 +21,12 @@
   z-index: 1;
   pointer-events: none;
 
-  backdrop-filter: blur(clamp(0.04rem, 0.2vw, 0.1rem));
-  -webkit-backdrop-filter: blur(clamp(0.04rem, 0.2vw, 0.1rem));
+  /* ✅ 너무 과하지 않게 살짝만 */
+  backdrop-filter: blur(clamp(0.18rem, 0.8vw, 0.4rem));
+  -webkit-backdrop-filter: blur(clamp(0.18rem, 0.8vw, 0.4rem));
 
-  background: rgba(255, 255, 255, 0.008);
+  /* ✅ 블러가 자연스럽게 보이도록 아주 옅은 막 */
+  background: rgba(255, 255, 255, 0.03);
 }
 
 /* ✅ 별 캔버스 */
