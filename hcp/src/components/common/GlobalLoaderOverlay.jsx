@@ -4,7 +4,7 @@ import WifiLoader from "./WifiLoader";
 
 const FADE_MS = 220; // CSS transition 시간과 맞춰야 함
 
-export default function GlobalLoaderOverlay({ open, minDurationMs = 1000 }) {
+export default function GlobalLoaderOverlay({ open, minDurationMs }) {
   const [mounted, setMounted] = useState(false); // DOM에 렌더링 여부
   const [visible, setVisible] = useState(false); // 애니메이션(opacity) 상태
 

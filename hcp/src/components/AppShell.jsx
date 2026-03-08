@@ -241,7 +241,7 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
   return (
     <div className={shellClassName}>
       {/* ✅ 최소 1초 + 페이드 */}
-      <GlobalLoaderOverlay open={loaderOpen} minDurationMs={1000} />
+      <GlobalLoaderOverlay open={loaderOpen}/>
 
       <canvas ref={canvasRef} className="shell-stars" aria-hidden="true" />
 
