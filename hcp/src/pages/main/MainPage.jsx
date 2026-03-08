@@ -1,3 +1,4 @@
+// src/pages/main/MainPage.jsx
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/main/MainPage.css";
@@ -21,10 +22,7 @@ import Booth10Svg from "../../assets/main/booths/booth_10.svg";
 
 import FoodTruckSvg from "../../assets/main/map/food_truck.svg";
 
-/** ✅ 총동아리연합회용 직접 등록 이미지
- *  바탕화면 파일은 바로 import 못하므로,
- *  프로젝트 내부(src/assets/...)로 옮겨서 사용해야 함
- */
+/** ✅ 총동아리연합회용 직접 등록 이미지 */
 import UnionBoothJpg from "../../assets/main/booths/union_booth.jpg";
 
 /** category 코드 → 라벨 */
@@ -77,7 +75,7 @@ function normalizeClubDetail(raw) {
   };
 }
 
-// ✅ D-day 자연어 표시
+// ✅ D-day 자연어 표시 (OPEN일 때만 사용)
 const ddayText = (v) => {
   if (v === null || v === undefined) return "-";
   const n = Number(v);
@@ -87,6 +85,20 @@ const ddayText = (v) => {
   if (n === 0) return "오늘 마감";
   return "지원 마감";
 };
+
+// ✅ recruitState 규칙 반영 (백엔드 계산값은 "표시"만)
+const formatDeadlineByState = (recruitState, daysLeft) => {
+  const s = String(recruitState || "").toUpperCase();
+
+  if (s === "PRE") return "모집 전";
+  if (s === "CLOSED") return "모집 종료";
+
+  // OPEN(또는 기타)일 때만 D-day 표기
+  return ddayText(daysLeft);
+};
+
+// ✅ "상세소개"는 소개글 없는 것으로 취급 (공백 포함 변형 방어)
+const isPlaceholderIntro = (s) => String(s || "").replace(/\s/g, "") === "상세소개";
 
 function SvgImg({ src, alt, className }) {
   return (
@@ -143,8 +155,6 @@ export default function MainPage() {
 
   /**
    * ✅ booth-10 전용 직접 데이터
-   * 소개글은 여기 직접 수정하면 됨
-   * 마감기한은 없으므로 daysLeftToRecruitEnd: null + hideDeadline: true
    */
   const CUSTOM_BOOTH_DETAIL_MAP = useMemo(
     () => ({
@@ -155,7 +165,7 @@ export default function MainPage() {
         summary: "",
         recruitState: null,
         daysLeftToRecruitEnd: null,
-        viewCount: null, 
+        viewCount: null,
         category: "",
         customTag: "운영",
         introduction:
@@ -206,10 +216,7 @@ export default function MainPage() {
     []
   );
 
-  const ALL_BOOTH_SLOTS = useMemo(
-    () => [...BOOTHS, ...EXTRA_BOOTHS],
-    [BOOTHS, EXTRA_BOOTHS]
-  );
+  const ALL_BOOTH_SLOTS = useMemo(() => [...BOOTHS, ...EXTRA_BOOTHS], [BOOTHS, EXTRA_BOOTHS]);
 
   /** 초기: 아무 부스도 선택 X */
   const [selectedKey, setSelectedKey] = useState(null);
@@ -277,10 +284,7 @@ export default function MainPage() {
   const clubName = selectedDetail?.name || "";
   const categoryCode = selectedDetail?.category || "";
   const categoryLabel =
-    selectedDetail?.customTag ||
-    CATEGORY_LABEL[categoryCode] ||
-    categoryCode ||
-    "분야";
+    selectedDetail?.customTag || CATEGORY_LABEL[categoryCode] || categoryCode || "분야";
 
   /** 사진 */
   const imageUrl = selectedDetail?.isCustom
@@ -289,22 +293,28 @@ export default function MainPage() {
 
   const hasImage = !!imageUrl;
 
-  /** 소개글 */
-  const introText =
-    (selectedDetail?.introduction && String(selectedDetail.introduction).trim()) ||
-    (selectedDetail?.summary && String(selectedDetail.summary).trim()) ||
-    "";
+  /** ✅ 소개글 ("상세소개"면 없음 처리) */
+  const introText = useMemo(() => {
+    const introRaw = String(selectedDetail?.introduction ?? "").trim();
+    const summaryRaw = String(selectedDetail?.summary ?? "").trim();
 
-  /** 마감기한 */
-  const deadlineText = ddayText(selectedDetail?.daysLeftToRecruitEnd);
+    const intro = introRaw && !isPlaceholderIntro(introRaw) ? introRaw : "";
+    const summary = summaryRaw && !isPlaceholderIntro(summaryRaw) ? summaryRaw : "";
+
+    return intro || summary || "";
+  }, [selectedDetail]);
+
+  /** ✅ 마감기한: PRE/OPEN/CLOSED 규칙 적용 */
+  const deadlineText = formatDeadlineByState(
+    selectedDetail?.recruitState,
+    selectedDetail?.daysLeftToRecruitEnd
+  );
   const hideDeadline = !!selectedDetail?.hideDeadline;
 
   /** 오오라 */
   const glowKey = showLoaded ? selectedKey : null;
 
-  /** 카드 클릭 시 상세 이동 가능 여부
-   *  booth-10(직접 데이터)는 clubId 없으므로 이동 안 함
-   */
+  /** 카드 클릭 시 상세 이동 가능 여부 */
   const canGoDetail = showLoaded && !!selectedDetail?.clubId && !selectedDetail?.isCustom;
 
   const onClickCard = () => {
@@ -354,7 +364,11 @@ export default function MainPage() {
                   active={selectedKey === booth.key}
                   onClick={() => onClickBooth(booth)}
                 >
-                  <SvgImg src={booth.svg} alt="" className="main-mapIconSvg main-mapIconSvg--booth" />
+                  <SvgImg
+                    src={booth.svg}
+                    alt=""
+                    className="main-mapIconSvg main-mapIconSvg--booth"
+                  />
                 </MapIconButton>
               ))}
 
@@ -367,7 +381,11 @@ export default function MainPage() {
                   active={selectedKey === booth.key}
                   onClick={() => onClickBooth(booth)}
                 >
-                  <SvgImg src={booth.svg} alt="" className="main-mapIconSvg main-mapIconSvg--booth" />
+                  <SvgImg
+                    src={booth.svg}
+                    alt=""
+                    className="main-mapIconSvg main-mapIconSvg--booth"
+                  />
                 </MapIconButton>
               ))}
 
@@ -380,7 +398,11 @@ export default function MainPage() {
                   active={selectedKey === t.key}
                   onClick={() => clearCard(t.key)}
                 >
-                  <SvgImg src={t.svg} alt="" className="main-mapIconSvg main-mapIconSvg--truck" />
+                  <SvgImg
+                    src={t.svg}
+                    alt=""
+                    className="main-mapIconSvg main-mapIconSvg--truck"
+                  />
                 </MapIconButton>
               ))}
             </div>
@@ -449,7 +471,7 @@ export default function MainPage() {
                 {introText ? (
                   <p className="main-clubCard__intro">{introText}</p>
                 ) : (
-                  <p className="main-clubCard__intro is-empty">동아리 소개글이 없습니다.</p>
+                  <p className="main-clubCard__intro is-empty">소개글 없음</p>
                 )}
               </div>
             </div>

@@ -41,35 +41,26 @@ const toImageUrl = (path) => {
   return `${origin}${p}`;
 };
 
-const dday = (v) => {
+// ✅ OPEN일 때만 표시할 D-day(백엔드 계산값)
+const ddayOpenOnly = (v) => {
   if (v === null || v === undefined) return "-";
   const n = Number(v);
   if (Number.isNaN(n)) return String(v);
 
   if (n === 0) return "D-Day";
   if (n > 0) return `D-${n}`;
-
-  // ✅ D-day 지난 경우
-  return "지원 마감";
+  return "모집 종료";
 };
 
-// ✅ "YYYY-MM-DD"를 로컬 날짜(자정)로 안전하게 파싱
-const parseLocalDate = (ymd) => {
-  const s = String(ymd || "").slice(0, 10);
-  const [y, m, d] = s.split("-").map(Number);
-  if (!y || !m || !d) return null;
-  return new Date(y, m - 1, d);
-};
+// ✅ recruitState 기반 표시 규칙
+const recruitDeadlineText = (recruitState, daysLeftToRecruitEnd) => {
+  const s = String(recruitState || "").toUpperCase();
 
-// ✅ recruitEndAt 기준으로 '남은 일수' 계산 (오늘 0시 기준)
-const calcDaysLeft = (recruitEndAt) => {
-  const end = parseLocalDate(recruitEndAt);
-  if (!end) return null;
+  if (s === "PRE") return "모집 전";
+  if (s === "CLOSED") return "모집 종료";
 
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 로컬 0시
-  const diffMs = end.getTime() - today.getTime();
-  return Math.round(diffMs / 86400000);
+  // OPEN(또는 기타)일 때만 D-day 표기
+  return ddayOpenOnly(daysLeftToRecruitEnd);
 };
 
 const normalizeName = (s) => String(s || "").replace(/\s/g, "");
@@ -149,12 +140,8 @@ export default function ClubDetail() {
     );
   }
 
-  // ✅ 프론트에서 recruitEndAt 기반으로 먼저 계산 (없으면 서버값 fallback)
-  const daysLeftFromEndAt = calcDaysLeft(club?.recruitEndAt);
-  const ddayValue =
-    daysLeftFromEndAt !== null && daysLeftFromEndAt !== undefined
-      ? daysLeftFromEndAt
-      : club.daysLeftToRecruitEnd;
+  // ✅ 백엔드 recruitState + daysLeftToRecruitEnd 기준으로만 표시
+  const deadlineText = recruitDeadlineText(club?.recruitState, club?.daysLeftToRecruitEnd);
 
   return (
     <div className="clubDetail-page">
@@ -193,7 +180,7 @@ export default function ClubDetail() {
           <div className="clubDetail-divider" />
 
           <div className="clubDetail-stat">
-            <div className="clubDetail-statVal">{dday(ddayValue)}</div>
+            <div className="clubDetail-statVal">{deadlineText}</div>
             <div className="clubDetail-statLab">마감기한</div>
           </div>
         </div>
