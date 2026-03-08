@@ -58,6 +58,7 @@ const recruitDeadlineText = (recruitState, daysLeftToRecruitEnd) => {
 
   if (s === "PRE") return "모집 전";
   if (s === "CLOSED") return "모집 종료";
+  if (s === "UNKNOWN") return "상시 모집";
 
   // OPEN(또는 기타)일 때만 D-day 표기
   return ddayOpenOnly(daysLeftToRecruitEnd);
