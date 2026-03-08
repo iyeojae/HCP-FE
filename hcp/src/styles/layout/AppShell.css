@@ -1,5 +1,3 @@
-/* src/styles/layout/AppShell.css */
-
 .app-shell {
   height: 100vh;
   height: 100dvh;
@@ -15,6 +13,19 @@
   );
 }
 
+.app-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+
+  backdrop-filter: blur(clamp(0.04rem, 0.2vw, 0.1rem));
+  -webkit-backdrop-filter: blur(clamp(0.04rem, 0.2vw, 0.1rem));
+
+  background: rgba(255, 255, 255, 0.008);
+}
+
 /* ✅ 별 캔버스 */
 .shell-stars {
   position: absolute;
@@ -25,17 +36,12 @@
 }
 
 /* ✅ 산: bottom/height를 반응형으로 */
-.shell-mountains{
+.shell-mountains {
   position: absolute;
   left: 0;
   right: 0;
 
-  /* ❌ bottom: -25rem;  */
-  /* ✅ 기기 높이에 따라 내려가는 양이 달라지게 */
   bottom: clamp(-40dvh, -50dvh, -50dvh);
-
-  /* ❌ height: 90%; */
-  /* ✅ 산이 너무 커져서 잘리지 않게 상한/하한을 둠 */
   height: clamp(60dvh, 90dvh, 105dvh);
 
   pointer-events: none;
@@ -57,7 +63,6 @@
   flex-direction: column;
   min-height: 0;
 
-  /* ✅ 하단 메뉴바만큼 여유 (px 금지 → clamp) */
   padding-bottom: calc(
     env(safe-area-inset-bottom) + clamp(4.75rem, 14vw, 5.75rem)
   );
@@ -69,14 +74,10 @@
   min-height: 0;
   max-height: 92.8%;
 
-  /* ✅ 메인(Outlet)만 스크롤 */
   overflow-y: auto;
   overflow-x: hidden;
 
-  /* ✅ 모바일 스크롤 */
   -webkit-overflow-scrolling: touch;
-
-  /* ✅ 스크롤 바운스가 배경까지 전파되는 것 방지 */
   overscroll-behavior: contain;
 }
 
