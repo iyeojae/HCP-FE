@@ -1,4 +1,3 @@
-// src/components/AppShell.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import "../styles/layout/AppShell.css";
@@ -21,23 +20,16 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
   const canvasRef = useRef(null);
   const location = useLocation();
 
-  // ✅ 렌더 시점에 읽기
   const isAdmin = storage.isAdmin?.() || false;
 
-  // ✅ 비관리자 + 마이페이지면 스크롤 잠금
   const isMyPage = location.pathname.startsWith("/mypage");
   const lockMyPageScroll = isMyPage && !isAdmin;
 
-  /** ✅ 전역 API pending 구독 */
   const [pendingApi, setPendingApi] = useState(globalLoaderStore.get());
   useEffect(() => globalLoaderStore.subscribe(setPendingApi), []);
 
-  /** ✅ 기존: shell-main 내부 <img> 로딩 추적(전체 이미지) */
   const pendingImgs = useTrackImagesInElement(".shell-main");
 
-  /** ===============================
-   * ✅ 메인/로그인에서는 "로컬 SVG만" 기다리기 (무한로더 방지)
-   * =============================== */
   const isLogin = location.pathname.startsWith("/login");
   const isAdminLogin = location.pathname.startsWith("/admin/login");
   const isMain = location.pathname.startsWith("/main");
@@ -48,7 +40,6 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
   const [pendingLocalSvg, setPendingLocalSvg] = useState(0);
   const trackedRef = useRef(new WeakSet());
 
-  // 라우트 진입 시: 해당 라우트면 로더 ON + 추적 상태 리셋
   useEffect(() => {
     if (isAssetGateRoute) {
       setRouteHold(true);
@@ -60,7 +51,6 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
     }
   }, [isAssetGateRoute, location.pathname]);
 
-  // 로컬 SVG(<img src="/static/media/*.svg" 또는 same-origin *.svg)만 추적
   useEffect(() => {
     if (!isAssetGateRoute) return;
 
@@ -76,8 +66,8 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
 
       try {
         const u = new URL(src, window.location.href);
-        if (u.origin !== window.location.origin) return false; // ✅ 외부 이미지 제외
-        return u.pathname.toLowerCase().endsWith(".svg");       // ✅ svg만
+        if (u.origin !== window.location.origin) return false;
+        return u.pathname.toLowerCase().endsWith(".svg");
       } catch {
         return String(src).toLowerCase().includes(".svg");
       }
@@ -120,7 +110,6 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
     };
   }, [isAssetGateRoute, location.pathname]);
 
-  // 로컬 SVG 로딩 완료되면 routeHold 해제
   useEffect(() => {
     if (!isAssetGateRoute) return;
 
@@ -131,21 +120,10 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
     }
   }, [isAssetGateRoute, svgScanned, pendingLocalSvg]);
 
-  /** ✅ 최종 로더 조건
-   * - /login,/admin/login,/main: 로컬 SVG만으로 로더 제어 (무한로더 방지)
-   * - 그 외: 기존 전역 방식 유지
-   */
   const loaderOpen = isAssetGateRoute
-    ? (routeHold || !svgScanned || pendingLocalSvg > 0)
-    : (pendingApi > 0 || pendingImgs > 0);
+    ? routeHold || !svgScanned || pendingLocalSvg > 0
+    : pendingApi > 0 || pendingImgs > 0;
 
-  /**
-   * ✅ 요구사항 반영
-   * - nav2: 메인
-   * - nav3: 목록
-   * - nav1: 마이페이지
-   * - 순서: 메인 → 목록 → 마이페이지
-   */
   const menuItems = useMemo(() => {
     return [
       { to: "/main", iconSrc: nav2, label: "메인" },
@@ -240,28 +218,30 @@ export default function AppShell({ showHeader = true, showMenu = true }) {
 
   return (
     <div className={shellClassName}>
-      {/* ✅ 최소 1초 + 페이드 */}
-      <GlobalLoaderOverlay open={loaderOpen}/>
+      <GlobalLoaderOverlay open={loaderOpen} />
 
-      <canvas ref={canvasRef} className="shell-stars" aria-hidden="true" />
+      {/* ✅ 배경만 따로 래핑 */}
+      <div className="shell-bg" aria-hidden="true">
+        <canvas ref={canvasRef} className="shell-stars" />
 
-      <div className="shell-mountains" aria-hidden="true">
-        <svg className="shell-mountains__svg" viewBox="0 0 430 932" preserveAspectRatio="none">
-          <path
-            d="M431.252 6.06578C475.286 -17.5493 470.568 33.4572 462.705 61.9123L431.252 539L-99.0898 547.776C59.3427 377.046 387.217 29.6809 431.252 6.06578Z"
-            fill="#28392F"
-            opacity="0.95"
-          />
-          <path
-            d="M40.7955 191.233C8.0994 1.79653 -98.0249 -11.5919 -147 5.39343V598.881H146.851C125.122 541.93 73.4915 380.67 40.7955 191.233Z"
-            fill="#3C4A42"
-          />
-          <path
-            d="M351.655 290.293C286.309 429.881 81.5774 530.116 42.2458 571.731C2.91408 613.346 -60.7617 745.806 -60.7617 745.806H495V0C474.445 38.6028 417.001 150.705 351.655 290.293Z"
-            fill="#3C6C54"
-          />
-          <path d="M0,880 L430,880 L430,932 L0,932 Z" fill="#243229" />
-        </svg>
+        <div className="shell-mountains">
+          <svg className="shell-mountains__svg" viewBox="0 0 430 932" preserveAspectRatio="none">
+            <path
+              d="M431.252 6.06578C475.286 -17.5493 470.568 33.4572 462.705 61.9123L431.252 539L-99.0898 547.776C59.3427 377.046 387.217 29.6809 431.252 6.06578Z"
+              fill="#28392F"
+              opacity="0.95"
+            />
+            <path
+              d="M40.7955 191.233C8.0994 1.79653 -98.0249 -11.5919 -147 5.39343V598.881H146.851C125.122 541.93 73.4915 380.67 40.7955 191.233Z"
+              fill="#3C4A42"
+            />
+            <path
+              d="M351.655 290.293C286.309 429.881 81.5774 530.116 42.2458 571.731C2.91408 613.346 -60.7617 745.806 -60.7617 745.806H495V0C474.445 38.6028 417.001 150.705 351.655 290.293Z"
+              fill="#3C6C54"
+            />
+            <path d="M0,880 L430,880 L430,932 L0,932 Z" fill="#243229" />
+          </svg>
+        </div>
       </div>
 
       <div className="shell-content">

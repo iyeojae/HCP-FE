@@ -4,7 +4,6 @@
   position: relative;
   overflow: hidden;
 
-  /* ✅ 그라데이션 배경 */
   background: linear-gradient(
     180deg,
     #4D2A66 13%,
@@ -13,20 +12,16 @@
   );
 }
 
-/* ✅ 배경 전체를 은은하게 블러 처리하는 레이어 */
-.app-shell::after {
-  content: "";
+/* ✅ 배경 전용 래퍼: 이것만 흐리게 */
+.shell-bg {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
 
-  /* ✅ 너무 과하지 않게 살짝만 */
-  backdrop-filter: blur(clamp(0.18rem, 0.8vw, 0.4rem));
-  -webkit-backdrop-filter: blur(clamp(0.18rem, 0.8vw, 0.4rem));
-
-  /* ✅ 블러가 자연스럽게 보이도록 아주 옅은 막 */
-  background: rgba(255, 255, 255, 0.03);
+  filter: blur(clamp(0.5rem, 0.2vw, 0.1rem));
+  transform: scale(1.02);
+  transform-origin: center center;
 }
 
 /* ✅ 별 캔버스 */
@@ -38,15 +33,13 @@
   pointer-events: none;
 }
 
-/* ✅ 산: bottom/height를 반응형으로 */
+/* ✅ 산 */
 .shell-mountains {
   position: absolute;
   left: 0;
   right: 0;
-
   bottom: clamp(-40dvh, -50dvh, -50dvh);
   height: clamp(60dvh, 90dvh, 105dvh);
-
   pointer-events: none;
 }
 
@@ -56,7 +49,7 @@
   display: block;
 }
 
-/* ✅ 헤더 + (Outlet 영역) 을 100dvh 안에서 flex로 배치 */
+/* ✅ 실제 콘텐츠는 항상 배경 위 */
 .shell-content {
   position: relative;
   z-index: 2;
@@ -71,7 +64,6 @@
   );
 }
 
-/* ✅ Outlet이 들어가는 영역: 여기만 스크롤 가능하게 */
 .shell-main {
   flex: 1 1 auto;
   min-height: 0;
@@ -84,12 +76,10 @@
   overscroll-behavior: contain;
 }
 
-/* ✅ 메뉴를 숨긴 화면(관리자 로그인 등)에서는 아래 공간을 비우지 않기 */
 .app-shell--noMenu .shell-content {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* ✅ 로그인(헤더/메뉴 없는) 화면에서는 산을 숨기고, 메인 스크롤 잠금 */
 .app-shell--authLogin .shell-mountains {
   display: none;
 }
