@@ -102,11 +102,13 @@
   flex-direction: column;
 }
 
-/* ✅ 사진 틀 통일: 모든 카드 동일 크기 */
+/* ✅ 사진 틀 통일: 모든 카드 동일 크기(뷰포트 기준 고정) */
 .club-card__media {
   width: 100%;
   aspect-ratio: 16 / 11;
-  min-height: clamp(6.5rem, 22vw, 8.2rem);
+
+  /* ✅ 추가: 높이를 뷰포트 기준으로 고정 (카드별 대표사진 크기와 무관) */
+  block-size: clamp(12.2rem, 22vw, 8.2rem);
 
   overflow: hidden;
   background: rgba(0, 0, 0, 0.18);
