@@ -108,7 +108,10 @@ export default function ClubDetail() {
   }, [clubId]);
 
   const imageUrl = useMemo(() => toImageUrl(club?.mainImageUrl), [club]);
-  const categoryLabel = useMemo(() => categoryKo(club?.category), [club]);
+  const categoryLabel = useMemo(() => {
+  if (Number(club?.clubId) === 44) return "동아리 관리";
+  return categoryKo(club?.category);
+}, [club]);
   const isLikelionClub = useMemo(() => isLikelion(club?.name), [club]);
 
   // ✅ 새 필드: everytimeUrl

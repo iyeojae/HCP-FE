@@ -16,6 +16,8 @@ const CATEGORY_ORDER = [
 
 function categoryTitle(category) {
   switch (category) {
+    case "CLUB_ADMIN":
+      return "동아리 관리";
     case "PERFORMANCE":
       return "공연 동아리";
     case "SPORTS":
@@ -47,6 +49,9 @@ function buildCoverUrl(coverUrl) {
 }
 
 export default function ClubsPage() {
+  const UNION_CLUB_ID = 44;
+  const ADMIN_CATEGORY_KEY = "CLUB_ADMIN";
+
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -85,7 +90,23 @@ export default function ClubsPage() {
 
         const arr = Array.isArray(res?.data) ? res.data : [];
 
-        const mapped = arr
+        // ✅ 1) 총동연(clubId=44)만 따로 빼기 (원래 그룹에서는 제거)
+        let unionClub = null;
+
+        const cleanedArr = arr.map((group) => {
+          const original = Array.isArray(group?.clubs) ? group.clubs : [];
+          const clubs = original.filter((c) => {
+            if (c?.clubId === UNION_CLUB_ID) {
+              unionClub = c;
+              return false; // 원래 그룹에서 제거
+            }
+            return true;
+          });
+          return { ...group, clubs };
+        });
+
+        // ✅ 2) 일반 섹션 매핑
+        const mapped = cleanedArr
           .map((group) => ({
             key: group.category,
             title: categoryTitle(group.category),
@@ -98,13 +119,32 @@ export default function ClubsPage() {
           }))
           .filter((s) => (s.clubs || []).length > 0);
 
+        // ✅ 3) 정렬 (기존 CATEGORY_ORDER 유지)
         const byKey = new Map(mapped.map((s) => [s.key, s]));
         const ordered = [
           ...CATEGORY_ORDER.filter((k) => byKey.has(k)).map((k) => byKey.get(k)),
           ...mapped.filter((s) => !CATEGORY_ORDER.includes(s.key)),
         ].filter(Boolean);
 
-        if (alive) setSections(ordered);
+        // ✅ 4) "동아리 관리" 섹션 생성(있으면 최상단)
+        const adminSection = unionClub
+          ? {
+              key: ADMIN_CATEGORY_KEY,
+              title: categoryTitle(ADMIN_CATEGORY_KEY),
+              clubs: [
+                {
+                  id: unionClub.clubId,
+                  name: unionClub.name,
+                  description: unionClub.summary,
+                  imageUrl: buildCoverUrl(unionClub.coverUrl),
+                },
+              ],
+            }
+          : null;
+
+        const finalSections = adminSection ? [adminSection, ...ordered] : ordered;
+
+        if (alive) setSections(finalSections);
       } catch (e) {
         if (!alive) return;
         setErrorMsg(
