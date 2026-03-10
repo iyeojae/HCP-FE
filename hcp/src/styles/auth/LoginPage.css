@@ -98,7 +98,7 @@
 
   color: rgba(255, 255, 255, 0.95);
   font-weight: 800;
-  font-size: clamp(0.85rem, 3.8vw, 0.05rem);
+  font-size: clamp(0.85rem, 3.8vw, 1rem);
 
   background: rgba(92, 156, 145, 0.95);
     
@@ -152,4 +152,27 @@
   width: clamp(2.45rem, 5.6vw, 1.85rem);
   height: clamp(3.45rem, 5.6vw, 1.85rem);
   display: block;
+}
+
+.login-credit {
+  position: absolute;
+  left: clamp(1rem, 4.8vw, 1.35rem);
+  bottom: calc(env(safe-area-inset-bottom) + clamp(1rem, 4vw, 1.4rem));
+  z-index: 4;
+
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.18rem, 0.7vh, 0.28rem);
+
+  max-width: min(78vw, 22rem);
+  pointer-events: none;
+}
+
+.login-credit p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: clamp(0.66rem, 2.7vw, 0.8rem);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
 }

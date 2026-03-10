@@ -99,7 +99,7 @@ export default function LoginPage() {
     <div className="login-page">
       <canvas ref={canvasRef} className="login-stars" aria-hidden="true" />
 
-      <div className="login-content">
+            <div className="login-content">
         <div className="login-hero" aria-label="시작 화면">
           <img src={LogoImg} alt="서비스 로고" className="login-logoImg" />
 
@@ -116,7 +116,13 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* ✅ 우측 하단 관리자 진입 SVG 버튼 */}
+      <div className="login-credit" aria-label="제작 정보">
+        <p>총괄 - 항공소프트웨어공학과 이여재</p>
+        <p>디자인 - 산업디자인학과 이가현</p>
+        <p>프론트엔드 - 항공소프트웨어공학과 김형석</p>
+        <p>백엔드 - 항공소프트웨어공학과 박찬우</p>
+      </div>
+
       <button
         type="button"
         className="login-adminBtn"
