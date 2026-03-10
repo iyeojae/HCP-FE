@@ -73,7 +73,8 @@ export default function ApplyWrite() {
       form.department.trim() &&
       !!contactPayload && // ✅ 010-1234-5678 완성 여부
       form.studentNo.trim() &&
-      form.techTags.length >= 3 &&
+      form.techTags.length >= 0 &&
+      form.techTags.length <= 3 &&
       form.applyPart.trim() &&
       form.motivation.trim() &&
       !submitting
